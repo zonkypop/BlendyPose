@@ -132,7 +132,6 @@ def run_body(file_path):
     # Clean up hands and face if they were previously captured (kinda distracting)
     full_delete()
 
-    # if file_path == "None": cap = cv2.VideoCapture(2)
     if file_path == "None": cap = cv2.VideoCapture(0)
     else: cap = cv2.VideoCapture(file_path)
 
@@ -157,8 +156,8 @@ def run_body(file_path):
                 bones = sorted(body.children, key=lambda b: b.name)
 
                 for k in range(33):
-                    bones[k].location.x = (bns[k].z)*0.5
-                    bones[k].location.y = (0.5-bns[k].x)*scale
+                    bones[k].location.y = (bns[k].z)*0.5
+                    bones[k].location.x = (0.5-bns[k].x)*scale
                     bones[k].location.z = (0.5-bns[k].y)*scale
                     bones[k].keyframe_insert(data_path="location", frame=n)
 
@@ -247,7 +246,6 @@ def run_full(file_path):
     mp_holistic = mp.solutions.holistic
 
     if file_path == "None": cap = cv2.VideoCapture(0)
-    # if file_path == "None": cap = cv2.VideoCapture(2)
     else: cap = cv2.VideoCapture(file_path)
 
     with mp_holistic.Holistic(
@@ -274,8 +272,8 @@ def run_full(file_path):
                 bones = sorted(body.children, key=lambda b: b.name)
 
                 for k in range(33):
-                    bones[k].location.x = (bns[k].z)*0.5
-                    bones[k].location.y = (0.5-bns[k].x)*scale
+                    bones[k].location.y = (bns[k].z)*0.5
+                    bones[k].location.x = (0.5-bns[k].x)*scale
                     bones[k].location.z = (0.5-bns[k].y)*scale
                     bones[k].keyframe_insert(data_path="location", frame=n)
 
@@ -284,8 +282,8 @@ def run_full(file_path):
                 scale = 2
                 bones = sorted(hand_left.children, key=lambda b: b.name)
                 for k in range(21):
-                    bones[k].location.x = (bns[k].z)*0.5
-                    bones[k].location.y = (0.5-bns[k].x)*scale
+                    bones[k].location.y = (bns[k].z)*scale
+                    bones[k].location.x = (0.5-bns[k].x)*scale
                     bones[k].location.z = (0.5-bns[k].y)*scale
                     bones[k].keyframe_insert(data_path="location", frame=n)
 
@@ -294,8 +292,8 @@ def run_full(file_path):
                 scale = 2
                 bones = sorted(hand_right.children, key=lambda b: b.name)
                 for k in range(21):
-                    bones[k].location.x = (bns[k].z)*0.5
-                    bones[k].location.y = (0.5-bns[k].x)*scale
+                    bones[k].location.y = (bns[k].z)*scale
+                    bones[k].location.x = (0.5-bns[k].x)*scale
                     bones[k].location.z = (0.5-bns[k].y)*scale
                     bones[k].keyframe_insert(data_path="location", frame=n)
 
@@ -304,8 +302,8 @@ def run_full(file_path):
                 scale = 2
                 bones = sorted(face.children, key=lambda b: b.name)
                 for k in range(468):
-                    bones[k].location.x = (bns[k].z)*0.5
-                    bones[k].location.y = (0.5-bns[k].x)*scale
+                    bones[k].location.y = (bns[k].z)*scale
+                    bones[k].location.x = (0.5-bns[k].x)*scale
                     bones[k].location.z = (0.5-bns[k].y)*scale
                     bones[k].keyframe_insert(data_path="location", frame=n)
 
