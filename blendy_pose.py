@@ -119,7 +119,7 @@ def run_body(file_path):
         import cv2
         import mediapipe as mp
     except Exception as e:
-        bpy.ops.message.messagebox('INVOKE_DEFAULT', message = 'Installing additional libraries, this may take a moment...')
+        # bpy.ops.message.messagebox('INVOKE_DEFAULT', 'Installing additional libraries, this may take a moment...')
         bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
         install()
         import cv2
@@ -230,7 +230,7 @@ def run_full(file_path):
         import cv2
         import mediapipe as mp
     except Exception as e:
-        bpy.ops.message.messagebox('INVOKE_DEFAULT', message = 'Installing additional libraries, this may take a moment...')
+        # bpy.ops.message.messagebox('INVOKE_DEFAULT', message = 'Installing additional libraries, this may take a moment...')
         bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
         install()
         import cv2
