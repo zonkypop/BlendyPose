@@ -12,7 +12,7 @@ bl_info = {
 import bpy
 from bpy.types import Panel, Operator, PropertyGroup, FloatProperty, PointerProperty
 from bpy.utils import register_class, unregister_class
-from bpy_extras.io_utils import ExportHelper
+from bpy_extras.io_utils import ImportHelper
 
 
 body_names = [
@@ -133,7 +133,10 @@ def run_body(file_path):
     full_delete()
 
     if file_path == "None": cap = cv2.VideoCapture(0)
-    else: cap = cv2.VideoCapture(file_path)
+    else:
+        print("FILE PATH: ", file_path)
+        cap = cv2.VideoCapture(file_path)
+        cap.open(file_path)
 
     with mp_pose.Pose(
         smooth_landmarks=True,
@@ -246,7 +249,9 @@ def run_full(file_path):
     mp_holistic = mp.solutions.holistic
 
     if file_path == "None": cap = cv2.VideoCapture(0)
-    else: cap = cv2.VideoCapture(file_path)
+    else:
+        cap = cv2.VideoCapture(file_path)
+        # cap.open(file_path)
 
     with mp_holistic.Holistic(
         min_detection_confidence=0.5,
@@ -341,31 +346,21 @@ def draw_file_opener(self, context):
     row.operator("something.identifier_selector", icon="FILE_FOLDER", text="")
 
 
-class RunFileSelector(bpy.types.Operator, ExportHelper):
+class RunFileSelector(bpy.types.Operator, ImportHelper):
     bl_idname = "something.identifier_selector"
-    bl_label = "some folder"
+    bl_label = "select file"
     filename_ext = ""
 
     def execute(self, context):
-        fdir = self.properties.filepath
-        context.scene.settings.file_path = fdir
-        print("Using file: ", context.scene.settings.file_path)
-        if context.scene.settings.body_tracking: run_body(context.scene.settings.file_path)
-        else: run_full(context.scene.settings.file_path)
+        file_dir = self.properties.filepath
+        if context.scene.settings.body_tracking: run_body(file_dir)
+        else: run_full(file_dir)
         return{'FINISHED'}
 
 
 class Settings(PropertyGroup):
-    smoothing: bpy.props.FloatProperty(name = "Animation Smoothing",
-                            description = "Smoothing between 0 and 1",
-                            min = 0.0,
-                            max = 1.0,
-                            default = 0.1)
-
-    file_path = bpy.props.StringProperty()
-
     # Capture only body pose if True, otherwise capture hands, face and body
-    body_tracking = bpy.props.BoolProperty(default=True)
+    body_tracking: bpy.props.BoolProperty(default=True)
 
 
 class RunOperator(bpy.types.Operator):
@@ -435,10 +430,10 @@ class BlendyPosePanel(bpy.types.Panel):
 
 
 _classes = [
+    Settings,
     BlendyPosePanel,
     RunOperator,
     RunFileSelector,
-    Settings,
     MessageBox
 ]
 
@@ -446,6 +441,7 @@ _classes = [
 def register():
     for c in _classes: register_class(c)
     bpy.types.Scene.settings = bpy.props.PointerProperty(type=Settings)
+
 
 
 def unregister():
