@@ -314,7 +314,7 @@ def run_full(file_path):
 
 
             mp_drawing.draw_landmarks(
-            image, results.face_landmarks, mp_holistic.FACE_CONNECTIONS)
+            image, results.face_landmarks, mp_holistic.FACEMESH_TESSELATION)
 
             mp_drawing.draw_landmarks(
             image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
