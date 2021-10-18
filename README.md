@@ -1,4 +1,4 @@
-# BlendyPose
+# PosePipe
 Blender Motion Capture using your camera!
 ![Screenshot](/screenshots/BlendyPoseScreenshot.png)
 
