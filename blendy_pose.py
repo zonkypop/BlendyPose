@@ -1,9 +1,9 @@
 bl_info = {
-    "name": "BlendyPose",
+    "name": "PosePipe",
     "author": "ZonkoSoft, SpectralVectors",
-    "version": (0, 2),
+    "version": (0, 3),
     "blender": (2, 80, 0),
-    "location": "3D View > Sidebar > BlendyPose",
+    "location": "3D View > Sidebar > PosePipe",
     "description": "Motion capture using your camera!",
     "category": "3D View",
 }
@@ -65,8 +65,10 @@ def install():
 
 def body_setup():
     """ Setup tracking boxes for body tracking """
+
     scene_objects = [n for n in bpy.context.scene.objects.keys()]
     setup = "Pose" in scene_objects
+
     for area in bpy.context.screen.areas: 
         if area.type == 'VIEW_3D':
             for space in area.spaces: 
@@ -74,12 +76,12 @@ def body_setup():
                     space.shading.color_type = 'OBJECT'
 
     if not setup:
-        bpy.ops.object.add(radius=1.0, type='EMPTY')
+        bpy.ops.object.add(radius=0.1, type='EMPTY')
         pose = bpy.context.active_object
         pose.name = "Pose"
         pose.scale = (-1,1,1)
 
-        bpy.ops.object.add(radius=1.0, type='EMPTY')
+        bpy.ops.object.add(radius=0.1, type='EMPTY')
         body = bpy.context.active_object
         body.name = "Body"
         body.parent = pose
@@ -95,7 +97,6 @@ def body_setup():
     body = bpy.context.scene.objects["Body"]
     return body
     
-
 
 def full_delete():
     """ Deletes all objects associated with full capture """
@@ -155,11 +156,9 @@ def run_body(file_path):
         min_detection_confidence=bpy.context.scene.settings.detection_confidence,
         min_tracking_confidence=bpy.context.scene.settings.tracking_confidence) as pose:
         for n in range(9000):
-        # for n in range(10):
             success, image = cap.read()
             if not success: continue
 
-            # image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
             image.flags.writeable = False
@@ -180,6 +179,8 @@ def run_body(file_path):
                                      mp_drawing.DrawingSpec(color=(0,128,0), thickness=1, circle_radius=2),
                                      mp_drawing.DrawingSpec(color=(0,255,0), thickness=1, circle_radius=1),)
 
+            mp_drawing.plot_landmarks(results.pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
+
             image = cv2.flip(image, 1)
             cv2.imshow('MediaPipe Pose', image)
             if cv2.waitKey(1) & 0xFF == 27:
@@ -194,8 +195,10 @@ def run_body(file_path):
 
 def full_setup():
     """ Setup tracking boxes for body, face and hand tracking """
+
     scene_objects = [n for n in bpy.context.scene.objects.keys()]
     pose = bpy.context.scene.objects["Pose"]
+
     for area in bpy.context.screen.areas: 
         if area.type == 'VIEW_3D':
             for space in area.spaces: 
@@ -203,7 +206,7 @@ def full_setup():
                     space.shading.color_type = 'OBJECT'
 
     if "Hand Left" not in scene_objects:
-        bpy.ops.object.add(radius=1.0, type='EMPTY')
+        bpy.ops.object.add(radius=0.1, type='EMPTY')
         hand_left = bpy.context.active_object
         hand_left.name = "Hand Left"
         hand_left.parent = pose
@@ -217,7 +220,7 @@ def full_setup():
             box.color = (0,0,255,255)
 
     if "Hand Right" not in scene_objects:
-        bpy.ops.object.add(radius=1.0, type='EMPTY')
+        bpy.ops.object.add(radius=0.1, type='EMPTY')
         hand_right = bpy.context.active_object
         hand_right.name = "Hand Right"
         hand_right.parent = pose
@@ -231,7 +234,7 @@ def full_setup():
             box.color = (255,0,0,255)
 
     if "Face" not in scene_objects:
-        bpy.ops.object.add(radius=1.0, type='EMPTY')
+        bpy.ops.object.add(radius=0.1, type='EMPTY')
         face = bpy.context.active_object
         face.name = "Face"
         face.parent = pose
@@ -250,7 +253,6 @@ def full_setup():
     pose.scale = (-1,1,1)
     return hand_left, hand_right, face
     
-
 
 def run_full(file_path):
     try:
@@ -272,10 +274,11 @@ def run_full(file_path):
     mp_drawing = mp.solutions.drawing_utils
     mp_holistic = mp.solutions.holistic
 
-    if file_path == "None": cap = cv2.VideoCapture(0)
+    settings = bpy.context.scene.settings
+
+    if file_path == "None": cap = cv2.VideoCapture(settings.camera_number)
     else:
         cap = cv2.VideoCapture(file_path)
-        # cap.open(file_path)
 
     with mp_holistic.Holistic(
         smooth_landmarks=bpy.context.scene.settings.smoothing,
@@ -288,7 +291,6 @@ def run_full(file_path):
                 print("Ignoring empty camera frame.")
                 continue
 
-            # image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             image.flags.writeable = False
             results = holistic.process(image)
@@ -443,12 +445,12 @@ class MessageBox(bpy.types.Operator):
 
 
 class BlendyPosePanel(bpy.types.Panel):
-    bl_label = "Blendy Pose"
-    bl_category = "BlendyPose"
+    bl_label = "PosePipe"
+    bl_category = "PosePipe"
     bl_idname = "VIEW3D_PT_BlendyPose"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_label = "Blendy Pose"
+    bl_label = "PosePipe"
 
     def draw(self, context):
 
@@ -469,7 +471,7 @@ class BlendyPosePanel(bpy.types.Panel):
         split.label(text="to Exit", icon='EVENT_ESC')
         column.prop(settings, 'detection_confidence', text='Detection:')
         column.prop(settings, 'tracking_confidence', text='Tracking:')
-        column.prop(settings, 'smoothing', text='Smoothing')
+        column.prop(settings, 'smoothing', text='Jitter Smoothing', icon='MOD_SMOOTH')
         column.operator(RunFileSelector.bl_idname, text="Load Video File", icon='FILE_MOVIE')
 
         row = layout.row()
