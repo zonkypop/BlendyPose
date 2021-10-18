@@ -56,9 +56,17 @@ def install():
     """ Install MediaPipe and dependencies behind the scenes """
     import subprocess
     import sys
-    subprocess.check_call([sys.executable, "-m", "ensurepip"])
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "pip"])
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "mediapipe"])
+
+    # path to python.exe
+    python = sys.executable
+
+    # upgrade pip
+    subprocess.call([python, "-m", "ensurepip"])
+    subprocess.call([python, "-m", "pip", "install", "--upgrade", "pip"])
+
+    # install required packages
+    subprocess.call([python, "-m", "pip", "install","--target=C:\\Program Files\\Blender Foundation\\Blender 2.93\\2.93\\python\\lib", "opencv-python"])
+    subprocess.call([python, "-m", "pip", "install","--target=C:\\Program Files\\Blender Foundation\\Blender 2.93\\2.93\\python\\lib", "mediapipe"])
 
 
 def body_setup():
