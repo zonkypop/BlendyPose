@@ -83,6 +83,7 @@ def body_setup():
         bpy.ops.object.add(radius=1.0, type='EMPTY')
         pose = bpy.context.active_object
         pose.name = "Pose"
+        pose.scale = (-1,1,1)
 
         bpy.ops.object.add(radius=1.0, type='EMPTY')
         body = bpy.context.active_object
@@ -99,6 +100,7 @@ def body_setup():
 
     body = bpy.context.scene.objects["Body"]
     return body
+    
 
 
 def full_delete():
@@ -251,7 +253,9 @@ def full_setup():
     hand_left = bpy.context.scene.objects["Hand Left"]
     hand_right = bpy.context.scene.objects["Hand Right"]
     face = bpy.context.scene.objects["Face"]
+    pose.scale = (-1,1,1)
     return hand_left, hand_right, face
+    
 
 
 def run_full(file_path):
