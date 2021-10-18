@@ -75,11 +75,11 @@ def body_setup():
     setup = "Pose" in scene_objects
 
     if not setup:
-        bpy.ops.object.add(radius=1.0, type='EMPTY')
+        bpy.ops.object.add(radius=5.0, type='EMPTY')
         pose = bpy.context.active_object
         pose.name = "Pose"
 
-        bpy.ops.object.add(radius=1.0, type='EMPTY')
+        bpy.ops.object.add(radius=5.0, type='EMPTY')
         body = bpy.context.active_object
         body.name = "Body"
         body.parent = pose
@@ -88,7 +88,7 @@ def body_setup():
             bpy.ops.mesh.primitive_cube_add()
             box = bpy.context.active_object
             box.name = body_names[k]
-            box.scale = (0.01, 0.01, 0.01)
+            box.scale = (0.1, 0.1, 0.1)
             box.parent = body
 
     body = bpy.context.scene.objects["Body"]
