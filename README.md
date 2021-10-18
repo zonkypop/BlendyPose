@@ -1,5 +1,6 @@
 # BlendyPose
 Blender Motion Capture using your camera!
+![Screenshot](/screenshots/BlendyPoseScreenshot.png)
 
 ## Note
 This fork of BlendyPose supports Windows full installs. 
