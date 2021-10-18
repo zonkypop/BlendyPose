@@ -93,7 +93,7 @@ def body_setup():
             bpy.ops.mesh.primitive_cube_add()
             box = bpy.context.active_object
             box.name = body_names[k]
-            box.scale = [0.01, 0.01, 0.01]
+            box.scale = [0.005, 0.005, 0.005]
             box.parent = body
             box.color = (0,255,0,255)
 
@@ -244,7 +244,7 @@ def full_setup():
             bpy.ops.mesh.primitive_cube_add()
             box = bpy.context.active_object
             box.name = str(k).zfill(3) + "Face"
-            box.scale = (0.002, 0.002, 0.002)
+            box.scale = (0.004, 0.004, 0.004)
             box.parent = face
             box.color = (255,0,255,255)
 
