@@ -73,13 +73,18 @@ def body_setup():
     """ Setup tracking boxes for body tracking """
     scene_objects = [n for n in bpy.context.scene.objects.keys()]
     setup = "Pose" in scene_objects
+    for area in bpy.context.screen.areas: 
+        if area.type == 'VIEW_3D':
+            for space in area.spaces: 
+                if space.type == 'VIEW_3D':
+                    space.shading.color_type = 'OBJECT'
 
     if not setup:
-        bpy.ops.object.add(radius=5.0, type='EMPTY')
+        bpy.ops.object.add(radius=1.0, type='EMPTY')
         pose = bpy.context.active_object
         pose.name = "Pose"
 
-        bpy.ops.object.add(radius=5.0, type='EMPTY')
+        bpy.ops.object.add(radius=1.0, type='EMPTY')
         body = bpy.context.active_object
         body.name = "Body"
         body.parent = pose
@@ -88,8 +93,9 @@ def body_setup():
             bpy.ops.mesh.primitive_cube_add()
             box = bpy.context.active_object
             box.name = body_names[k]
-            box.scale = (0.1, 0.1, 0.1)
+            box.scale = [0.01, 0.01, 0.01]
             box.parent = body
+            box.color = (0,255,0,255)
 
     body = bpy.context.scene.objects["Body"]
     return body
@@ -172,7 +178,10 @@ def run_body(file_path):
                     bones[k].location.z = (0.5-bns[k].y)*scale
                     bones[k].keyframe_insert(data_path="location", frame=n)
 
-            mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+            mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
+                                     mp_drawing.DrawingSpec(color=(0,128,0), thickness=1, circle_radius=2),
+                                     mp_drawing.DrawingSpec(color=(0,255,0), thickness=1, circle_radius=1),
+                                     )
             image = cv2.flip(image, 1)
 
             cv2.imshow('MediaPipe Pose', image)
@@ -190,6 +199,11 @@ def full_setup():
     """ Setup tracking boxes for body, face and hand tracking """
     scene_objects = [n for n in bpy.context.scene.objects.keys()]
     pose = bpy.context.scene.objects["Pose"]
+    for area in bpy.context.screen.areas: 
+        if area.type == 'VIEW_3D':
+            for space in area.spaces: 
+                if space.type == 'VIEW_3D':
+                    space.shading.color_type = 'OBJECT'
 
     if "Hand Left" not in scene_objects:
         bpy.ops.object.add(radius=1.0, type='EMPTY')
@@ -203,6 +217,7 @@ def full_setup():
             box.name = str(k).zfill(2) + "Hand Left"
             box.scale = (0.01, 0.01, 0.01)
             box.parent = hand_left
+            box.color = (0,0,255,255)
 
     if "Hand Right" not in scene_objects:
         bpy.ops.object.add(radius=1.0, type='EMPTY')
@@ -216,6 +231,7 @@ def full_setup():
             box.name = str(k).zfill(2) + "Hand Right"
             box.scale = (0.01, 0.01, 0.01)
             box.parent = hand_right
+            box.color = (255,0,0,255)
 
     if "Face" not in scene_objects:
         bpy.ops.object.add(radius=1.0, type='EMPTY')
@@ -229,6 +245,7 @@ def full_setup():
             box.name = str(k).zfill(3) + "Face"
             box.scale = (0.002, 0.002, 0.002)
             box.parent = face
+            box.color = (255,0,255,255)
 
     hand_left = bpy.context.scene.objects["Hand Left"]
     hand_right = bpy.context.scene.objects["Hand Right"]
@@ -322,16 +339,24 @@ def run_full(file_path):
 
 
             mp_drawing.draw_landmarks(
-            image, results.face_landmarks, mp_holistic.FACEMESH_TESSELATION)
+            image, results.face_landmarks, mp_holistic.FACEMESH_TESSELATION,
+            mp_drawing.DrawingSpec(color=(128,0,128), thickness=1, circle_radius=1),
+            mp_drawing.DrawingSpec(color=(255,0,255), thickness=1, circle_radius=1),)
 
             mp_drawing.draw_landmarks(
-            image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
+            image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS,
+            mp_drawing.DrawingSpec(color=(128,0,0), thickness=1, circle_radius=2),
+            mp_drawing.DrawingSpec(color=(255,0,0), thickness=1, circle_radius=1),)
 
             mp_drawing.draw_landmarks(
-            image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
+            image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS,
+            mp_drawing.DrawingSpec(color=(0,0,128), thickness=1, circle_radius=2),
+            mp_drawing.DrawingSpec(color=(0,0,255), thickness=1, circle_radius=1),)
 
             mp_drawing.draw_landmarks(
-            image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS)
+            image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS,
+            mp_drawing.DrawingSpec(color=(0,128,0), thickness=1, circle_radius=2),
+            mp_drawing.DrawingSpec(color=(0,255,0), thickness=1, circle_radius=1),)
 
             image = cv2.flip(image, 1)
             cv2.imshow('MediaPipe Holistic', image)
