@@ -1,7 +1,7 @@
 bl_info = {
     "name": "BlendyPose",
-    "author": "ZonkoSoft",
-    "version": (0, 1),
+    "author": "ZonkoSoft, SpectralVectors",
+    "version": (0, 2),
     "blender": (2, 80, 0),
     "location": "3D View > Sidebar > BlendyPose",
     "description": "Motion capture using your camera!",
@@ -180,10 +180,9 @@ def run_body(file_path):
 
             mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
                                      mp_drawing.DrawingSpec(color=(0,128,0), thickness=1, circle_radius=2),
-                                     mp_drawing.DrawingSpec(color=(0,255,0), thickness=1, circle_radius=1),
-                                     )
-            image = cv2.flip(image, 1)
+                                     mp_drawing.DrawingSpec(color=(0,255,0), thickness=1, circle_radius=1),)
 
+            image = cv2.flip(image, 1)
             cv2.imshow('MediaPipe Pose', image)
             if cv2.waitKey(1) & 0xFF == 27:
                 break
@@ -431,35 +430,39 @@ class MessageBox(bpy.types.Operator):
 class BlendyPosePanel(bpy.types.Panel):
     bl_label = "Blendy Pose"
     bl_category = "BlendyPose"
-    bl_idname = "BlendyPose"
+    bl_idname = "VIEW3D_PT_BlendyPose"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_label = "Blendy Pose"
 
     def draw(self, context):
-        layout = self.layout
-        obj = context.object
-        row = layout.row()
+
         settings = context.scene.settings
+        obj = context.object
+
+        layout = self.layout
+ 
+        row = layout.row()
+        row.label(text="Motion Capture", icon='ARMATURE_DATA')
+        
+        box = layout.box()
+        column_flow = box.column_flow(align=True)
+        column = column_flow.column()
+        row = column.row()
+        split = row.split(factor=0.6)
+        split.operator(RunOperator.bl_idname, text="Camera", icon='CAMERA_DATA')
+        split.label(text="to Exit", icon='EVENT_ESC')
+        column.operator(RunFileSelector.bl_idname, text="Load Video File", icon='FILE_MOVIE')
 
         row = layout.row()
-        row.label(text="Run Motion Capture")
+        row.label(text="Capture Mode", icon='CON_TRANSLIKE')
 
-        row = layout.row()
-        row.operator(RunOperator.bl_idname, text="Camera")
-
-        row = layout.row()
-        row.operator(RunFileSelector.bl_idname, text="Video File")
-
-        row = layout.row()
-        row.label(text="(Press escape to stop)")
-
-        row = layout.row()
-        row.label(text="Capture Mode")
-
-        row = layout.row()
+        box = layout.box()
+        column_flow = box.column_flow(align=True)
+        column = column_flow.column()
         label = "Body" if settings.body_tracking else "Body, Hands and Face"
-        row.prop(settings, 'body_tracking', text=label, toggle=True)
+        icon = 'OUTLINER_OB_ARMATURE' if settings.body_tracking else 'USER'
+        column.prop(settings, 'body_tracking', text=label, toggle=True, icon=icon)
 
 
 _classes = [
