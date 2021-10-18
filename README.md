@@ -2,7 +2,7 @@
 Blender Motion Capture using your camera!
 
 ## Note
-This fork of BlendyPose supports Windows installs. 
+This fork of BlendyPose supports Windows full installs. 
 
 The original will install to your system's Python, while this version will install to Blender's Python.
 
@@ -14,10 +14,6 @@ The original will install to your system's Python, while this version will insta
 3 - Open the BlendyPose panel and click Start Camera! The first time will take around a minute to install the libraries
 
 ## Credits
-forked from BlendyPose by Zonkosoft
+forked from [BlendyPose by Zonkosoft](https://github.com/zonkosoft/BlendyPose)
 
-BlendyPose is made using MediaPipe, OpenCV: 
-
-https://github.com/google/mediapipe
-
-https://github.com/opencv/opencv-python
+BlendyPose is made using [MediaPipe](https://github.com/google/mediapipe), [OpenCV](https://github.com/opencv/opencv-python) 
