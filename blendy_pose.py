@@ -146,16 +146,18 @@ def run_body(file_path):
     # Clean up hands and face if they were previously captured (kinda distracting)
     full_delete()
 
-    if file_path == "None": cap = cv2.VideoCapture(0)
+    settings = bpy.context.scene.settings
+
+    if file_path == "None": cap = cv2.VideoCapture(settings.camera_number)
     else:
         print("FILE PATH: ", file_path)
         cap = cv2.VideoCapture(file_path)
         cap.open(file_path)
 
     with mp_pose.Pose(
-        smooth_landmarks=True,
-        min_detection_confidence=0.5,
-        min_tracking_confidence=0.5) as pose:
+        smooth_landmarks=bpy.context.scene.settings.smoothing,
+        min_detection_confidence=bpy.context.scene.settings.detection_confidence,
+        min_tracking_confidence=bpy.context.scene.settings.tracking_confidence) as pose:
         for n in range(9000):
         # for n in range(10):
             success, image = cap.read()
@@ -278,8 +280,9 @@ def run_full(file_path):
         # cap.open(file_path)
 
     with mp_holistic.Holistic(
-        min_detection_confidence=0.5,
-        min_tracking_confidence=0.5) as holistic:
+        smooth_landmarks=bpy.context.scene.settings.smoothing,
+        min_detection_confidence=bpy.context.scene.settings.detection_confidence,
+        min_tracking_confidence=bpy.context.scene.settings.tracking_confidence) as holistic:
 
         for n in range(9000):
             success, image = cap.read()
@@ -380,7 +383,7 @@ def draw_file_opener(self, context):
 
 class RunFileSelector(bpy.types.Operator, ImportHelper):
     bl_idname = "something.identifier_selector"
-    bl_label = "select file"
+    bl_label = "Select Video File"
     filename_ext = ""
 
     def execute(self, context):
@@ -393,6 +396,20 @@ class RunFileSelector(bpy.types.Operator, ImportHelper):
 class Settings(PropertyGroup):
     # Capture only body pose if True, otherwise capture hands, face and body
     body_tracking: bpy.props.BoolProperty(default=True)
+    camera_number: bpy.props.IntProperty(default=0, 
+                                        soft_min=0, 
+                                        soft_max=10, 
+                                        description="If you have more than one camera, you can choose here. 0 should work for most users.")
+    tracking_confidence: bpy.props.FloatProperty(default=0.5,
+                                                soft_min=0.1,
+                                                soft_max=1,
+                                                description="Minimum level of data necessary to track, higher numbers = higher latency.")
+    detection_confidence: bpy.props.FloatProperty(default=0.5,
+                                                soft_min=0.1,
+                                                soft_max=1,
+                                                description="Minimum level of data necessary to detect, higher numbers = higher latency.")
+    smoothing: bpy.props.BoolProperty(default=True,
+                                     description="If True, applies a smoothing pass to the tracked data.")
 
 
 class RunOperator(bpy.types.Operator):
@@ -443,25 +460,28 @@ class BlendyPosePanel(bpy.types.Panel):
         layout = self.layout
  
         row = layout.row()
-        row.label(text="Motion Capture", icon='ARMATURE_DATA')
+        row.label(text="Camera Motion Capture", icon='VIEW_CAMERA')
         
         box = layout.box()
-        column_flow = box.column_flow(align=True)
-        column = column_flow.column()
-        row = column.row()
-        split = row.split(factor=0.6)
-        split.operator(RunOperator.bl_idname, text="Camera", icon='CAMERA_DATA')
+        column_flow = box.column_flow()
+        column = column_flow.column(align=True)
+        column.operator(RunOperator.bl_idname, text="Start Camera", icon='CAMERA_DATA')
+        split = column.split(factor=0.6)
+        split.prop(settings, 'camera_number', text='Camera: ')
         split.label(text="to Exit", icon='EVENT_ESC')
+        column.prop(settings, 'detection_confidence', text='Detection:')
+        column.prop(settings, 'tracking_confidence', text='Tracking:')
+        column.prop(settings, 'smoothing', text='Smoothing')
         column.operator(RunFileSelector.bl_idname, text="Load Video File", icon='FILE_MOVIE')
 
         row = layout.row()
-        row.label(text="Capture Mode", icon='CON_TRANSLIKE')
+        row.label(text="Capture Mode", icon='FILE_SCRIPT')
 
         box = layout.box()
         column_flow = box.column_flow(align=True)
         column = column_flow.column()
         label = "Body" if settings.body_tracking else "Body, Hands and Face"
-        icon = 'OUTLINER_OB_ARMATURE' if settings.body_tracking else 'USER'
+        icon = 'ARMATURE_DATA' if settings.body_tracking else 'VIEW_PAN'
         column.prop(settings, 'body_tracking', text=label, toggle=True, icon=icon)
 
 
