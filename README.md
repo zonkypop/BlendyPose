@@ -4,7 +4,7 @@ Blender Motion Capture using your camera!
 ![GIF](/screenshots/PosePipeDemo1.gif)
 
 ## Note
-This fork of BlendyPose supports Windows full installs, it will install to Blender's Python path, rather than your system's.
+This will install to Blender's Python path, rather than your system's.
 
 ## Install
 1 - Open Blender
