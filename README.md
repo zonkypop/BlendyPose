@@ -16,4 +16,6 @@ This fork of BlendyPose supports Windows full installs, it will install to Blend
 ## Credits
 forked from [BlendyPose by Zonkosoft](https://github.com/zonkosoft/BlendyPose)
 
-BlendyPose is made using [MediaPipe](https://github.com/google/mediapipe), [OpenCV](https://github.com/opencv/opencv-python) 
+BlendyPose is made using [MediaPipe](https://github.com/google/mediapipe), [OpenCV](https://github.com/opencv/opencv-python)
+
+[Nicholas Renotte](https://www.youtube.com/c/NicholasRenotte) provided some Mediapipe knowledge.
