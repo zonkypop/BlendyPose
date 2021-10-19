@@ -333,19 +333,19 @@ def run_full(file_path):
             if settings.hand_tracking:
                 mp_drawing.draw_landmarks(
                 image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS,
-                mp_drawing.DrawingSpec(color=(128,0,0), thickness=1, circle_radius=2),
-                mp_drawing.DrawingSpec(color=(255,0,0), thickness=1, circle_radius=1),)
+                mp_drawing.DrawingSpec(color=(128,0,0), thickness=1, circle_radius=3),
+                mp_drawing.DrawingSpec(color=(255,0,0), thickness=3, circle_radius=1),)
 
                 mp_drawing.draw_landmarks(
                 image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS,
-                mp_drawing.DrawingSpec(color=(0,0,128), thickness=1, circle_radius=2),
-                mp_drawing.DrawingSpec(color=(0,0,255), thickness=1, circle_radius=1),)
+                mp_drawing.DrawingSpec(color=(0,0,128), thickness=1, circle_radius=3),
+                mp_drawing.DrawingSpec(color=(0,0,255), thickness=3, circle_radius=1),)
             
             if settings.body_tracking:
                 mp_drawing.draw_landmarks(
                 image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS,
                 mp_drawing.DrawingSpec(color=(0,128,0), thickness=1, circle_radius=2),
-                mp_drawing.DrawingSpec(color=(0,255,0), thickness=1, circle_radius=1),)
+                mp_drawing.DrawingSpec(color=(0,255,0), thickness=2, circle_radius=1),)
 
             image = cv2.flip(image, 1)
             cv2.imshow('MediaPipe Holistic', image)
@@ -400,12 +400,12 @@ class Settings(PropertyGroup):
                                         soft_max=10, 
                                         description="If you have more than one camera, you can choose here. 0 should work for most users.")
     
-    tracking_confidence: bpy.props.FloatProperty(default=0.5,
+    tracking_confidence: bpy.props.FloatProperty(default=0.3,
                                                 soft_min=0.1,
                                                 soft_max=1,
                                                 description="Minimum level of data necessary to track, higher numbers = higher latency.")
     
-    detection_confidence: bpy.props.FloatProperty(default=0.5,
+    detection_confidence: bpy.props.FloatProperty(default=0.3,
                                                 soft_min=0.1,
                                                 soft_max=1,
                                                 description="Minimum level of data necessary to detect, higher numbers = higher latency.")
