@@ -1,7 +1,7 @@
 bl_info = {
     "name": "PosePipe",
     "author": "ZonkoSoft, SpectralVectors",
-    "version": (0, 3),
+    "version": (0, 4),
     "blender": (2, 80, 0),
     "location": "3D View > Sidebar > PosePipe",
     "description": "Motion capture using your camera!",
@@ -57,17 +57,29 @@ def install():
     import subprocess
     import sys
 
-    subprocess.check_call([sys.executable, "-m", "ensurepip"])
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "pip"])
-    subprocess.check_call([sys.executable, "-m", "pip", "install","--target=C:\\Program Files\\Blender Foundation\\Blender 2.93\\2.93\\python\\lib", "opencv-python"])
-    subprocess.check_call([sys.executable, "-m", "pip", "install","--target=C:\\Program Files\\Blender Foundation\\Blender 2.93\\2.93\\python\\lib", "mediapipe"])
+    subprocess.check_call([
+        sys.executable, 
+        "-m", "ensurepip"])
+
+    subprocess.check_call([
+        sys.executable, 
+        "-m", "pip", "install", "--upgrade", "pip"])
+
+    subprocess.check_call([
+        sys.executable, 
+        "-m", "pip", "install",
+        "--target=C:\\Program Files\\Blender Foundation\\Blender 2.93\\2.93\\python\\lib", 
+        "opencv-python"])
+
+    subprocess.check_call([
+        sys.executable, 
+        "-m", "pip", "install",
+        "--target=C:\\Program Files\\Blender Foundation\\Blender 2.93\\2.93\\python\\lib", 
+        "mediapipe"])
 
 
 def body_setup():
     """ Setup tracking boxes for body tracking """
-
-    scene_objects = [n for n in bpy.context.scene.objects.keys()]
-    setup = "Pose" in scene_objects
 
     for area in bpy.context.screen.areas: 
         if area.type == 'VIEW_3D':
@@ -75,128 +87,46 @@ def body_setup():
                 if space.type == 'VIEW_3D':
                     space.shading.color_type = 'OBJECT'
 
+    scene_objects = [n for n in bpy.context.scene.objects.keys()]
+    setup = "Pose" in scene_objects
+
     if not setup:
         bpy.ops.object.add(radius=0.1, type='EMPTY')
         pose = bpy.context.active_object
         pose.name = "Pose"
         pose.scale = (-1,1,1)
 
-        bpy.ops.object.add(radius=0.1, type='EMPTY')
-        body = bpy.context.active_object
-        body.name = "Body"
-        body.parent = pose
+    pose = bpy.context.scene.objects["Pose"]
 
-        for k in range(33):
-            bpy.ops.mesh.primitive_cube_add()
-            box = bpy.context.active_object
-            box.name = body_names[k]
-            box.scale = [0.005, 0.005, 0.005]
-            box.parent = body
-            box.color = (0,255,0,255)
+    bpy.ops.object.add(radius=0.1, type='EMPTY')
+    body = bpy.context.active_object
+    body.name = "Body"
+    body.parent = pose
+
+    for k in range(33):
+        bpy.ops.mesh.primitive_cube_add()
+        box = bpy.context.active_object
+        box.name = body_names[k]
+        box.scale = [0.005, 0.005, 0.005]
+        box.parent = body
+        box.color = (0,255,0,255)
 
     body = bpy.context.scene.objects["Body"]
     return body
-    
-
-def full_delete():
-    """ Deletes all objects associated with full capture """
-    scene_objects = [n for n in bpy.context.scene.objects.keys()]
-    pose = bpy.context.scene.objects["Pose"]
-
-    if "Hand Left" in scene_objects:
-        for c in  bpy.context.scene.objects["Hand Left"].children:
-            bpy.data.objects[c.name].select_set(True)
-            bpy.ops.object.delete()
-        bpy.data.objects["Hand Left"].select_set(True)
-        bpy.ops.object.delete()
-
-    if "Hand Right" in scene_objects:
-        for c in  bpy.context.scene.objects["Hand Right"].children:
-            bpy.data.objects[c.name].select_set(True)
-            bpy.ops.object.delete()
-        bpy.data.objects["Hand Right"].select_set(True)
-        bpy.ops.object.delete()
-
-    if "Face" in scene_objects:
-        for c in  bpy.context.scene.objects["Face"].children:
-            bpy.data.objects[c.name].select_set(True)
-            bpy.ops.object.delete()
-        bpy.data.objects["Face"].select_set(True)
-        bpy.ops.object.delete()
 
 
-def run_body(file_path):
-    try:
-        import cv2
-        import mediapipe as mp
-    except Exception as e:
-        # bpy.ops.message.messagebox('INVOKE_DEFAULT', 'Installing additional libraries, this may take a moment...')
-        bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
-        install()
-        import cv2
-        import mediapipe as mp
-
-    mp_drawing = mp.solutions.drawing_utils
-    mp_pose = mp.solutions.pose
-
-    body = body_setup()
-    # Clean up hands and face if they were previously captured (kinda distracting)
-    full_delete()
-
-    settings = bpy.context.scene.settings
-
-    if file_path == "None": cap = cv2.VideoCapture(settings.camera_number)
-    else:
-        print("FILE PATH: ", file_path)
-        cap = cv2.VideoCapture(file_path)
-        cap.open(file_path)
-
-    with mp_pose.Pose(
-        smooth_landmarks=bpy.context.scene.settings.smoothing,
-        min_detection_confidence=bpy.context.scene.settings.detection_confidence,
-        min_tracking_confidence=bpy.context.scene.settings.tracking_confidence) as pose:
-        for n in range(9000):
-            success, image = cap.read()
-            if not success: continue
-
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-            image.flags.writeable = False
-            results = pose.process(image)
-
-            if results.pose_landmarks:
-                bns = [b for b in results.pose_landmarks.landmark]
-                scale = 2
-                bones = sorted(body.children, key=lambda b: b.name)
-
-                for k in range(33):
-                    bones[k].location.y = (bns[k].z)*0.5
-                    bones[k].location.x = (0.5-bns[k].x)*scale
-                    bones[k].location.z = (0.5-bns[k].y)*scale
-                    bones[k].keyframe_insert(data_path="location", frame=n)
-
-            mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
-                                     mp_drawing.DrawingSpec(color=(0,128,0), thickness=1, circle_radius=2),
-                                     mp_drawing.DrawingSpec(color=(0,255,0), thickness=1, circle_radius=1),)
-
-            mp_drawing.plot_landmarks(results.pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
-
-            image = cv2.flip(image, 1)
-            cv2.imshow('MediaPipe Pose', image)
-            if cv2.waitKey(1) & 0xFF == 27:
-                break
-
-            bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
-            bpy.context.scene.frame_set(n)
-
-        cap.release()
-        cv2.destroyAllWindows()
-
-
-def full_setup():
-    """ Setup tracking boxes for body, face and hand tracking """
+def hands_setup():
+    """ Setup tracking boxes for hand tracking """
 
     scene_objects = [n for n in bpy.context.scene.objects.keys()]
+    setup = "Pose" in scene_objects
+
+    if not setup:
+        bpy.ops.object.add(radius=0.1, type='EMPTY')
+        pose = bpy.context.active_object
+        pose.name = "Pose"
+        pose.scale = (-1,1,1)
+
     pose = bpy.context.scene.objects["Pose"]
 
     for area in bpy.context.screen.areas: 
@@ -231,7 +161,33 @@ def full_setup():
             box.name = str(k).zfill(2) + "Hand Right"
             box.scale = (0.01, 0.01, 0.01)
             box.parent = hand_right
-            box.color = (255,0,0,255)
+            box.color = (255,0,0,255)    
+
+    hand_left = bpy.context.scene.objects["Hand Left"]
+    hand_right = bpy.context.scene.objects["Hand Right"]
+    pose.scale = (-1,1,1)
+    return hand_left, hand_right
+
+
+def face_setup():
+    """ Setup tracking boxes for face tracking """
+
+    scene_objects = [n for n in bpy.context.scene.objects.keys()]
+    setup = "Pose" in scene_objects
+
+    if not setup:
+        bpy.ops.object.add(radius=0.1, type='EMPTY')
+        pose = bpy.context.active_object
+        pose.name = "Pose"
+        pose.scale = (-1,1,1)
+
+    pose = bpy.context.scene.objects["Pose"]
+
+    for area in bpy.context.screen.areas: 
+        if area.type == 'VIEW_3D':
+            for space in area.spaces: 
+                if space.type == 'VIEW_3D':
+                    space.shading.color_type = 'OBJECT'
 
     if "Face" not in scene_objects:
         bpy.ops.object.add(radius=0.1, type='EMPTY')
@@ -247,12 +203,37 @@ def full_setup():
             box.parent = face
             box.color = (255,0,255,255)
 
-    hand_left = bpy.context.scene.objects["Hand Left"]
-    hand_right = bpy.context.scene.objects["Hand Right"]
     face = bpy.context.scene.objects["Face"]
     pose.scale = (-1,1,1)
-    return hand_left, hand_right, face
-    
+    return face
+
+
+def full_delete():
+    """ Deletes all objects associated with full capture """
+    scene_objects = [n for n in bpy.context.scene.objects.keys()]
+    pose = bpy.context.scene.objects["Pose"]
+
+    if "Hand Left" in scene_objects:
+        for c in  bpy.context.scene.objects["Hand Left"].children:
+            bpy.data.objects[c.name].select_set(True)
+            bpy.ops.object.delete()
+        bpy.data.objects["Hand Left"].select_set(True)
+        bpy.ops.object.delete()
+
+    if "Hand Right" in scene_objects:
+        for c in  bpy.context.scene.objects["Hand Right"].children:
+            bpy.data.objects[c.name].select_set(True)
+            bpy.ops.object.delete()
+        bpy.data.objects["Hand Right"].select_set(True)
+        bpy.ops.object.delete()
+
+    if "Face" in scene_objects:
+        for c in  bpy.context.scene.objects["Face"].children:
+            bpy.data.objects[c.name].select_set(True)
+            bpy.ops.object.delete()
+        bpy.data.objects["Face"].select_set(True)
+        bpy.ops.object.delete()
+
 
 def run_full(file_path):
     try:
@@ -265,25 +246,26 @@ def run_full(file_path):
         import cv2
         import mediapipe as mp
 
-    mp_drawing = mp.solutions.drawing_utils
-    mp_pose = mp.solutions.pose
-
-    body = body_setup()
-    hand_left, hand_right, face = full_setup()
-
+    settings = bpy.context.scene.settings
     mp_drawing = mp.solutions.drawing_utils
     mp_holistic = mp.solutions.holistic
 
-    settings = bpy.context.scene.settings
+    if settings.body_tracking:
+        body = body_setup()
+    if settings.hand_tracking:
+        hand_left, hand_right = hands_setup()
+    if settings.face_tracking: 
+        face = face_setup()
 
     if file_path == "None": cap = cv2.VideoCapture(settings.camera_number)
     else:
         cap = cv2.VideoCapture(file_path)
 
     with mp_holistic.Holistic(
-        smooth_landmarks=bpy.context.scene.settings.smoothing,
-        min_detection_confidence=bpy.context.scene.settings.detection_confidence,
-        min_tracking_confidence=bpy.context.scene.settings.tracking_confidence) as holistic:
+        model_complexity=settings.model_complexity,
+        smooth_landmarks=settings.smoothing,
+        min_detection_confidence=settings.detection_confidence,
+        min_tracking_confidence=settings.tracking_confidence) as holistic:
 
         for n in range(9000):
             success, image = cap.read()
@@ -298,67 +280,72 @@ def run_full(file_path):
             image.flags.writeable = True
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-            if results.pose_landmarks:
-                bns = [b for b in results.pose_landmarks.landmark]
-                scale = 2
-                bones = sorted(body.children, key=lambda b: b.name)
+            if settings.body_tracking:
+                if results.pose_landmarks:
+                    bns = [b for b in results.pose_landmarks.landmark]
+                    scale = 2
+                    bones = sorted(body.children, key=lambda b: b.name)
 
-                for k in range(33):
-                    bones[k].location.y = (bns[k].z)*0.5
-                    bones[k].location.x = (0.5-bns[k].x)*scale
-                    bones[k].location.z = (0.5-bns[k].y)*scale
-                    bones[k].keyframe_insert(data_path="location", frame=n)
+                    for k in range(33):
+                        bones[k].location.y = (bns[k].z)*0.5
+                        bones[k].location.x = (0.5-bns[k].x)*scale
+                        bones[k].location.z = (0.5-bns[k].y)*scale
+                        bones[k].keyframe_insert(data_path="location", frame=n)
+                        
+            if settings.hand_tracking:
+                if results.left_hand_landmarks:
+                    bns = [b for b in results.left_hand_landmarks.landmark]
+                    scale = 2
+                    bones = sorted(hand_left.children, key=lambda b: b.name)
+                    for k in range(21):
+                        bones[k].location.y = (bns[k].z)*scale
+                        bones[k].location.x = (0.5-bns[k].x)*scale
+                        bones[k].location.z = (0.5-bns[k].y)*scale
+                        bones[k].keyframe_insert(data_path="location", frame=n)
 
-            if results.left_hand_landmarks:
-                bns = [b for b in results.left_hand_landmarks.landmark]
-                scale = 2
-                bones = sorted(hand_left.children, key=lambda b: b.name)
-                for k in range(21):
-                    bones[k].location.y = (bns[k].z)*scale
-                    bones[k].location.x = (0.5-bns[k].x)*scale
-                    bones[k].location.z = (0.5-bns[k].y)*scale
-                    bones[k].keyframe_insert(data_path="location", frame=n)
+                if results.right_hand_landmarks:
+                    bns = [b for b in results.right_hand_landmarks.landmark]
+                    scale = 2
+                    bones = sorted(hand_right.children, key=lambda b: b.name)
+                    for k in range(21):
+                        bones[k].location.y = (bns[k].z)*scale
+                        bones[k].location.x = (0.5-bns[k].x)*scale
+                        bones[k].location.z = (0.5-bns[k].y)*scale
+                        bones[k].keyframe_insert(data_path="location", frame=n)
 
-            if results.right_hand_landmarks:
-                bns = [b for b in results.right_hand_landmarks.landmark]
-                scale = 2
-                bones = sorted(hand_right.children, key=lambda b: b.name)
-                for k in range(21):
-                    bones[k].location.y = (bns[k].z)*scale
-                    bones[k].location.x = (0.5-bns[k].x)*scale
-                    bones[k].location.z = (0.5-bns[k].y)*scale
-                    bones[k].keyframe_insert(data_path="location", frame=n)
+            if settings.face_tracking:
+                if results.face_landmarks:
+                    bns = [b for b in results.face_landmarks.landmark]
+                    scale = 2
+                    bones = sorted(face.children, key=lambda b: b.name)
+                    for k in range(468):
+                        bones[k].location.y = (bns[k].z)*scale
+                        bones[k].location.x = (0.5-bns[k].x)*scale
+                        bones[k].location.z = (0.5-bns[k].y)*scale
+                        bones[k].keyframe_insert(data_path="location", frame=n)
 
-            if results.face_landmarks:
-                bns = [b for b in results.face_landmarks.landmark]
-                scale = 2
-                bones = sorted(face.children, key=lambda b: b.name)
-                for k in range(468):
-                    bones[k].location.y = (bns[k].z)*scale
-                    bones[k].location.x = (0.5-bns[k].x)*scale
-                    bones[k].location.z = (0.5-bns[k].y)*scale
-                    bones[k].keyframe_insert(data_path="location", frame=n)
+            if settings.face_tracking: 
+                mp_drawing.draw_landmarks(
+                image, results.face_landmarks, mp_holistic.FACEMESH_TESSELATION,
+                mp_drawing.DrawingSpec(color=(128,0,128), thickness=1, circle_radius=1),
+                mp_drawing.DrawingSpec(color=(255,0,255), thickness=1, circle_radius=1),)
+            
+            if settings.hand_tracking:
+                mp_drawing.draw_landmarks(
+                image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS,
+                mp_drawing.DrawingSpec(color=(128,0,0), thickness=1, circle_radius=2),
+                mp_drawing.DrawingSpec(color=(255,0,0), thickness=1, circle_radius=1),)
 
-
-            mp_drawing.draw_landmarks(
-            image, results.face_landmarks, mp_holistic.FACEMESH_TESSELATION,
-            mp_drawing.DrawingSpec(color=(128,0,128), thickness=1, circle_radius=1),
-            mp_drawing.DrawingSpec(color=(255,0,255), thickness=1, circle_radius=1),)
-
-            mp_drawing.draw_landmarks(
-            image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS,
-            mp_drawing.DrawingSpec(color=(128,0,0), thickness=1, circle_radius=2),
-            mp_drawing.DrawingSpec(color=(255,0,0), thickness=1, circle_radius=1),)
-
-            mp_drawing.draw_landmarks(
-            image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS,
-            mp_drawing.DrawingSpec(color=(0,0,128), thickness=1, circle_radius=2),
-            mp_drawing.DrawingSpec(color=(0,0,255), thickness=1, circle_radius=1),)
-
-            mp_drawing.draw_landmarks(
-            image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS,
-            mp_drawing.DrawingSpec(color=(0,128,0), thickness=1, circle_radius=2),
-            mp_drawing.DrawingSpec(color=(0,255,0), thickness=1, circle_radius=1),)
+                mp_drawing.draw_landmarks(
+                image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS,
+                mp_drawing.DrawingSpec(color=(0,0,128), thickness=1, circle_radius=2),
+                mp_drawing.DrawingSpec(color=(0,0,255), thickness=1, circle_radius=1),)
+            
+            if settings.body_tracking:
+                mp_drawing.draw_landmarks(
+                image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS,
+                mp_drawing.DrawingSpec(color=(0,128,0), thickness=1, circle_radius=2),
+                mp_drawing.DrawingSpec(color=(0,255,0), thickness=1, circle_radius=1),)
 
             image = cv2.flip(image, 1)
             cv2.imshow('MediaPipe Holistic', image)
@@ -388,28 +375,8 @@ class RunFileSelector(bpy.types.Operator, ImportHelper):
 
     def execute(self, context):
         file_dir = self.properties.filepath
-        if context.scene.settings.body_tracking: run_body(file_dir)
-        else: run_full(file_dir)
+        run_full(file_dir)
         return{'FINISHED'}
-
-
-class Settings(PropertyGroup):
-    # Capture only body pose if True, otherwise capture hands, face and body
-    body_tracking: bpy.props.BoolProperty(default=True)
-    camera_number: bpy.props.IntProperty(default=0, 
-                                        soft_min=0, 
-                                        soft_max=10, 
-                                        description="If you have more than one camera, you can choose here. 0 should work for most users.")
-    tracking_confidence: bpy.props.FloatProperty(default=0.5,
-                                                soft_min=0.1,
-                                                soft_max=1,
-                                                description="Minimum level of data necessary to track, higher numbers = higher latency.")
-    detection_confidence: bpy.props.FloatProperty(default=0.5,
-                                                soft_min=0.1,
-                                                soft_max=1,
-                                                description="Minimum level of data necessary to detect, higher numbers = higher latency.")
-    smoothing: bpy.props.BoolProperty(default=True,
-                                     description="If True, applies a smoothing pass to the tracked data.")
 
 
 class RunOperator(bpy.types.Operator):
@@ -418,30 +385,38 @@ class RunOperator(bpy.types.Operator):
     bl_label = "Run Body Operator"
 
     def execute(self, context):
-        if context.scene.settings.body_tracking: run_body("None")
-        else: run_full("None")
+        run_full("None")
         return {'FINISHED'}
 
 
-class MessageBox(bpy.types.Operator):
-    bl_idname = "message.messagebox"
-    bl_label = ""
-
-    message = bpy.props.StringProperty(
-        name = "message",
-        description = "message",
-        default = 'Installing additional libraries, this may take a moment...'
-    )
-
-    def execute(self, context):
-        self.report({'INFO'}, self.message)
-        return {'FINISHED'}
-
-    def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self, width = 400)
-
-    def draw(self, context):
-        self.layout.label(text=self.message)
+class Settings(PropertyGroup):
+    # Capture only body pose if True, otherwise capture hands, face and body
+    face_tracking: bpy.props.BoolProperty(default=False)
+    hand_tracking: bpy.props.BoolProperty(default=False)
+    body_tracking: bpy.props.BoolProperty(default=True)
+    
+    camera_number: bpy.props.IntProperty(default=0, 
+                                        soft_min=0, 
+                                        soft_max=10, 
+                                        description="If you have more than one camera, you can choose here. 0 should work for most users.")
+    
+    tracking_confidence: bpy.props.FloatProperty(default=0.5,
+                                                soft_min=0.1,
+                                                soft_max=1,
+                                                description="Minimum level of data necessary to track, higher numbers = higher latency.")
+    
+    detection_confidence: bpy.props.FloatProperty(default=0.5,
+                                                soft_min=0.1,
+                                                soft_max=1,
+                                                description="Minimum level of data necessary to detect, higher numbers = higher latency.")
+    
+    smoothing: bpy.props.BoolProperty(default=True,
+                                        description="If True, applies a smoothing pass to the tracked data.")
+    
+    model_complexity: bpy.props.IntProperty(default=1,
+                                            soft_min=0,
+                                            soft_max=2,
+                                            description='Complexity of the tracking model, higher numbers = higher latency')
 
 
 class BlendyPosePanel(bpy.types.Panel):
@@ -455,49 +430,56 @@ class BlendyPosePanel(bpy.types.Panel):
     def draw(self, context):
 
         settings = context.scene.settings
-        obj = context.object
 
         layout = self.layout
- 
+
         row = layout.row()
         row.label(text="Camera Motion Capture", icon='VIEW_CAMERA')
         
         box = layout.box()
         column_flow = box.column_flow()
         column = column_flow.column(align=True)
+        column.label(text='Camera Settings:')
         column.operator(RunOperator.bl_idname, text="Start Camera", icon='CAMERA_DATA')
         split = column.split(factor=0.6)
         split.prop(settings, 'camera_number', text='Camera: ')
         split.label(text="to Exit", icon='EVENT_ESC')
-        column.prop(settings, 'detection_confidence', text='Detection:')
-        column.prop(settings, 'tracking_confidence', text='Tracking:')
-        column.prop(settings, 'smoothing', text='Jitter Smoothing', icon='MOD_SMOOTH')
         column.operator(RunFileSelector.bl_idname, text="Load Video File", icon='FILE_MOVIE')
 
         row = layout.row()
         row.label(text="Capture Mode", icon='FILE_SCRIPT')
 
         box = layout.box()
-        column_flow = box.column_flow(align=True)
-        column = column_flow.column()
-        label = "Body" if settings.body_tracking else "Body, Hands and Face"
-        icon = 'ARMATURE_DATA' if settings.body_tracking else 'VIEW_PAN'
-        column.prop(settings, 'body_tracking', text=label, toggle=True, icon=icon)
+        column_flow = box.column_flow()
+        column = column_flow.column(align=True)
+        column.label(text='Select Data to Capture:')
+        column.prop(settings, 'face_tracking', text='Face', icon='MONKEY')
+        column.prop(settings, 'hand_tracking', text='Hands', icon='VIEW_PAN')
+        column.prop(settings, 'body_tracking', text='Body', icon='ARMATURE_DATA')
 
+        row = layout.row()
+        row.label(text="Capture Settings", icon='PREFERENCES')
 
+        box = layout.box()
+        column_flow = box.column_flow()
+        column = column_flow.column(align=True)
+        column.prop(settings, 'model_complexity', text='Model Complexity:')
+        column.prop(settings, 'detection_confidence', text='Detection:')
+        column.prop(settings, 'tracking_confidence', text='Tracking:')
+        column.prop(settings, 'smoothing', text='Jitter Smoothing', icon='MOD_SMOOTH')
+        
+        
 _classes = [
     Settings,
     BlendyPosePanel,
     RunOperator,
     RunFileSelector,
-    MessageBox
 ]
 
 
 def register():
     for c in _classes: register_class(c)
     bpy.types.Scene.settings = bpy.props.PointerProperty(type=Settings)
-
 
 
 def unregister():
