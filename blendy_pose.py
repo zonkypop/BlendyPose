@@ -1,7 +1,7 @@
 bl_info = {
     "name": "PosePipe",
     "author": "ZonkoSoft, SpectralVectors",
-    "version": (0, 4),
+    "version": (0, 5),
     "blender": (2, 80, 0),
     "location": "3D View > Sidebar > PosePipe",
     "description": "Motion capture using your camera!",
@@ -13,6 +13,7 @@ import bpy
 from bpy.types import Panel, Operator, PropertyGroup, FloatProperty, PointerProperty
 from bpy.utils import register_class, unregister_class
 from bpy_extras.io_utils import ImportHelper
+import time
 
 
 body_names = [
@@ -207,40 +208,57 @@ def face_setup():
     pose.scale = (-1,1,1)
     return face
 
-
-def full_delete():
-    """ Deletes all objects associated with full capture """
+def body_delete():
+    """ Deletes all objects associated with body capture """
     scene_objects = [n for n in bpy.context.scene.objects.keys()]
     pose = bpy.context.scene.objects["Pose"]
 
+    if "Body" in scene_objects:
+        for c in bpy.context.scene.objects["Body"].children: 
+            if not len(bpy.context.scene.objects["Body"].children) == 0:
+                bpy.data.objects[c.name].select_set(True)
+                bpy.ops.object.delete()
+        bpy.data.objects["Body"].select_set(True)
+        bpy.ops.object.delete()
+
+def face_delete():
+    """ Deletes all objects associated with face capture """
+    scene_objects = [n for n in bpy.context.scene.objects.keys()]
+    pose = bpy.context.scene.objects["Pose"]
+
+    if "Face" in scene_objects:
+        for c in  bpy.context.scene.objects["Face"].children:
+            if not len(bpy.context.scene.objects["Face"].children) == 0:
+                bpy.data.objects[c.name].select_set(True)
+                bpy.ops.object.delete()
+        bpy.data.objects["Face"].select_set(True)
+        bpy.ops.object.delete()
+
+def hands_delete():
+    """ Deletes all objects associated with hands capture """
+    scene_objects = [n for n in bpy.context.scene.objects.keys()]
+    pose = bpy.context.scene.objects["Pose"]
     if "Hand Left" in scene_objects:
         for c in  bpy.context.scene.objects["Hand Left"].children:
-            bpy.data.objects[c.name].select_set(True)
-            bpy.ops.object.delete()
+            if not len(bpy.context.scene.objects["Hand Left"].children) == 0:
+                bpy.data.objects[c.name].select_set(True)
+                bpy.ops.object.delete()
         bpy.data.objects["Hand Left"].select_set(True)
         bpy.ops.object.delete()
 
     if "Hand Right" in scene_objects:
         for c in  bpy.context.scene.objects["Hand Right"].children:
-            bpy.data.objects[c.name].select_set(True)
-            bpy.ops.object.delete()
+            if not len(bpy.context.scene.objects["Hand Right"].children) == 0:
+                bpy.data.objects[c.name].select_set(True)
+                bpy.ops.object.delete()
         bpy.data.objects["Hand Right"].select_set(True)
         bpy.ops.object.delete()
-
-    if "Face" in scene_objects:
-        for c in  bpy.context.scene.objects["Face"].children:
-            bpy.data.objects[c.name].select_set(True)
-            bpy.ops.object.delete()
-        bpy.data.objects["Face"].select_set(True)
-        bpy.ops.object.delete()
-
 
 def run_full(file_path):
     try:
         import cv2
         import mediapipe as mp
     except Exception as e:
-        # bpy.ops.message.messagebox('INVOKE_DEFAULT', message = 'Installing additional libraries, this may take a moment...')
         bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
         install()
         import cv2
@@ -251,10 +269,16 @@ def run_full(file_path):
     mp_holistic = mp.solutions.holistic
 
     if settings.body_tracking:
+        #if "Body" in bpy.context.scene.objects.keys():
+        #    body_delete()
         body = body_setup()
     if settings.hand_tracking:
+        #if "Left Hand" or "Right Hand" in bpy.context.scene.objects.keys():
+        #    hands_delete()
         hand_left, hand_right = hands_setup()
     if settings.face_tracking: 
+        #if "Face" in bpy.context.scene.objects.keys():
+        #    face_delete()
         face = face_setup()
 
     if file_path == "None": cap = cv2.VideoCapture(settings.camera_number)
@@ -266,6 +290,8 @@ def run_full(file_path):
         smooth_landmarks=settings.smoothing,
         min_detection_confidence=settings.detection_confidence,
         min_tracking_confidence=settings.tracking_confidence) as holistic:
+
+        previousTime = 0
 
         for n in range(9000):
             success, image = cap.read()
@@ -348,6 +374,18 @@ def run_full(file_path):
                 mp_drawing.DrawingSpec(color=(0,255,0), thickness=2, circle_radius=1),)
 
             image = cv2.flip(image, 1)
+            
+            currentTime = time.time()
+            fps = 1/(currentTime - previousTime)
+            previousTime = currentTime
+            cv2.putText(img=image, 
+                        text='FPS: ' + str(int(fps)), 
+                        org=(10,30), 
+                        fontFace=cv2.FONT_HERSHEY_PLAIN, 
+                        fontScale=2, 
+                        color=(255,255,255), 
+                        thickness=2)
+            
             cv2.imshow('MediaPipe Holistic', image)
             if cv2.waitKey(1) & 0xFF == 27:
                 break
@@ -368,7 +406,7 @@ def draw_file_opener(self, context):
     row.operator("something.identifier_selector", icon="FILE_FOLDER", text="")
 
 
-class RunFileSelector(bpy.types.Operator, ImportHelper):
+class RunFileSelector(Operator, ImportHelper):
     bl_idname = "something.identifier_selector"
     bl_label = "Select Video File"
     filename_ext = ""
@@ -379,7 +417,7 @@ class RunFileSelector(bpy.types.Operator, ImportHelper):
         return{'FINISHED'}
 
 
-class RunOperator(bpy.types.Operator):
+class RunOperator(Operator):
     """Tooltip"""
     bl_idname = "object.run_body_operator"
     bl_label = "Run Body Operator"
@@ -401,14 +439,14 @@ class Settings(PropertyGroup):
                                         description="If you have more than one camera, you can choose here. 0 should work for most users.")
     
     tracking_confidence: bpy.props.FloatProperty(default=0.3,
-                                                soft_min=0.1,
-                                                soft_max=1,
-                                                description="Minimum level of data necessary to track, higher numbers = higher latency.")
+                                        soft_min=0.1,
+                                        soft_max=1,
+                                        description="Minimum level of data necessary to track, higher numbers = higher latency.")
     
     detection_confidence: bpy.props.FloatProperty(default=0.3,
-                                                soft_min=0.1,
-                                                soft_max=1,
-                                                description="Minimum level of data necessary to detect, higher numbers = higher latency.")
+                                        soft_min=0.1,
+                                        soft_max=1,
+                                        description="Minimum level of data necessary to detect, higher numbers = higher latency.")
     
     smoothing: bpy.props.BoolProperty(default=True,
                                         description="If True, applies a smoothing pass to the tracked data.")
@@ -418,8 +456,285 @@ class Settings(PropertyGroup):
                                             soft_max=2,
                                             description='Complexity of the tracking model, higher numbers = higher latency')
 
+class SkeletonBuilder(bpy.types.Operator):
+    """Builds an armature to use with the mocap data"""
+    bl_idname = "pose.skeleton_builder"
+    bl_label = "Skeleton Builder"
 
-class BlendyPosePanel(bpy.types.Panel):
+    def execute(self, context):
+        # Pelvis and Spine
+        bpy.ops.object.armature_add(radius=0.3)
+        pelvis = bpy.context.object
+        bpy.context.object.name = 'pelvis'
+        bonename = bpy.context.object.name
+        bone = bpy.data.objects[bonename]
+        bpy.ops.object.constraint_add(type='COPY_LOCATION')
+        bone.constraints['Copy Location'].target = bpy.data.objects['23 left hip']
+        bpy.ops.object.constraint_add(type='COPY_LOCATION')
+        bone.constraints['Copy Location.001'].target = bpy.data.objects['24 right hip']
+        bone.constraints['Copy Location.001'].influence = 0.5
+
+        #bpy.ops.object.editmode_toggle()
+        #bpy.ops.view3d.snap_cursor_to_selected()
+        #bpy.ops.object.editmode_toggle()
+
+        #bpy.ops.object.armature_add(radius=0.3)
+        #spine01 = bpy.context.object
+        #bpy.context.object.name = 'spine01'
+        #bonename = bpy.context.object.name
+        #bone = bpy.data.objects[bonename]
+
+        #bpy.ops.object.editmode_toggle()
+        #bpy.ops.view3d.snap_cursor_to_selected()
+        #bpy.ops.object.editmode_toggle()
+
+        #bpy.ops.object.armature_add(radius=0.3)
+        #spine02 = bpy.context.object
+        #bpy.context.object.name = 'spine02'
+        #bonename = bpy.context.object.name
+        #bone = bpy.data.objects[bonename]
+
+        #bpy.ops.object.editmode_toggle()
+        #bpy.ops.view3d.snap_cursor_to_selected()
+        #bpy.ops.object.editmode_toggle()
+
+        #bpy.ops.object.armature_add(radius=0.3)
+        #spine03 = bpy.context.object
+        #bpy.context.object.name = 'spine03'
+        #bonename = bpy.context.object.name
+        #bone = bpy.data.objects[bonename]
+
+        bpy.ops.object.armature_add(radius=0.3)
+        neck = bpy.context.object
+        bpy.context.object.name = 'neck'
+        bonename = bpy.context.object.name
+        bone = bpy.data.objects[bonename]
+        bpy.ops.object.constraint_add(type='COPY_LOCATION')
+        bone.constraints['Copy Location'].target = bpy.data.objects['11 left shoulder']
+        bpy.ops.object.constraint_add(type='COPY_LOCATION')
+        bone.constraints['Copy Location.001'].target = bpy.data.objects['12 right shoulder']
+        bone.constraints['Copy Location.001'].influence = 0.5
+
+        # Left Arm
+        bpy.ops.object.armature_add()
+        clavicle_l = bpy.context.object
+        bpy.context.object.name = 'clavicle_l'
+        bonename = bpy.context.object.name
+        bone = bpy.data.objects[bonename]
+        bpy.ops.object.constraint_add(type='COPY_LOCATION')
+        bone.constraints['Copy Location'].target = bpy.data.objects['11 left shoulder']
+        bpy.ops.object.posemode_toggle()
+        bpy.ops.pose.constraint_add(type="STRETCH_TO")
+        bone.pose.bones['Bone'].constraints['Stretch To'].target = bpy.data.objects['12 right shoulder']
+        bone.pose.bones['Bone'].constraints['Stretch To'].rest_length = 2
+        bone.pose.bones['Bone'].constraints['Stretch To'].volume = 'NO_VOLUME'
+        bone.pose.bones['Bone'].constraints['Stretch To'].keep_axis = 'PLANE_Z'
+        bpy.ops.object.posemode_toggle()
+
+        bpy.ops.object.armature_add()
+        upperarm_l = bpy.context.object
+        bpy.context.object.name = 'upperarm_l'
+        bonename = bpy.context.object.name
+        bone = bpy.data.objects[bonename]
+        bpy.ops.object.constraint_add(type='COPY_LOCATION')
+        bone.constraints['Copy Location'].target = bpy.data.objects['11 left shoulder']
+        bpy.ops.object.posemode_toggle()
+        bpy.ops.pose.constraint_add(type="STRETCH_TO")
+        bone.pose.bones['Bone'].constraints['Stretch To'].target = bpy.data.objects['13 left elbow']
+        bone.pose.bones['Bone'].constraints['Stretch To'].rest_length = 1
+        bone.pose.bones['Bone'].constraints['Stretch To'].volume = 'NO_VOLUME'
+        bpy.ops.object.posemode_toggle()
+
+        bpy.ops.object.armature_add()
+        lowerarm_l = bpy.context.object
+        bpy.context.object.name = 'lowerarm_l'
+        bonename = bpy.context.object.name
+        bone = bpy.data.objects[bonename]
+        bpy.ops.object.constraint_add(type='COPY_LOCATION')
+        bone.constraints['Copy Location'].target = bpy.data.objects['13 left elbow']
+        bpy.ops.object.posemode_toggle()
+        bpy.ops.pose.constraint_add(type="STRETCH_TO")
+        bone.pose.bones['Bone'].constraints['Stretch To'].target = bpy.data.objects['15 left wrist']
+        bone.pose.bones['Bone'].constraints['Stretch To'].rest_length = 1
+        bone.pose.bones['Bone'].constraints['Stretch To'].volume = 'NO_VOLUME'
+        bpy.ops.object.posemode_toggle()
+
+
+        # Right Arm
+        bpy.ops.object.armature_add()
+        clavicle_r = bpy.context.object
+        bpy.context.object.name = 'clavicle_r'
+        bonename = bpy.context.object.name
+        bone = bpy.data.objects[bonename]
+        bpy.ops.object.constraint_add(type='COPY_LOCATION')
+        bone.constraints['Copy Location'].target = bpy.data.objects['12 right shoulder']
+        bpy.ops.object.posemode_toggle()
+        bpy.ops.pose.constraint_add(type="STRETCH_TO")
+        bone.pose.bones['Bone'].constraints['Stretch To'].target = bpy.data.objects['11 left shoulder']
+        bone.pose.bones['Bone'].constraints['Stretch To'].rest_length = 2
+        bone.pose.bones['Bone'].constraints['Stretch To'].volume = 'NO_VOLUME'
+        bone.pose.bones['Bone'].constraints['Stretch To'].keep_axis = 'PLANE_Z'
+        bpy.ops.object.posemode_toggle()
+
+        bpy.ops.object.armature_add()
+        upperarm_r = bpy.context.object
+        bpy.context.object.name = 'upperarm_r'
+        bonename = bpy.context.object.name
+        bone = bpy.data.objects[bonename]
+        bpy.ops.object.constraint_add(type='COPY_LOCATION')
+        bone.constraints['Copy Location'].target = bpy.data.objects['12 right shoulder']
+        bpy.ops.object.posemode_toggle()
+        bpy.ops.pose.constraint_add(type="STRETCH_TO")
+        bone.pose.bones['Bone'].constraints['Stretch To'].target = bpy.data.objects['14 right elbow']
+        bone.pose.bones['Bone'].constraints['Stretch To'].rest_length = 1
+        bone.pose.bones['Bone'].constraints['Stretch To'].volume = 'NO_VOLUME'
+        bpy.ops.object.posemode_toggle()
+
+        bpy.ops.object.armature_add()
+        lowerarm_r = bpy.context.object
+        bpy.context.object.name = 'lowerarm_r'
+        bonename = bpy.context.object.name
+        bone = bpy.data.objects[bonename]
+        bpy.ops.object.constraint_add(type='COPY_LOCATION')
+        bone.constraints['Copy Location'].target = bpy.data.objects['14 right elbow']
+        bpy.ops.object.posemode_toggle()
+        bpy.ops.pose.constraint_add(type="STRETCH_TO")
+        bone.pose.bones['Bone'].constraints['Stretch To'].target = bpy.data.objects['16 right wrist']
+        bone.pose.bones['Bone'].constraints['Stretch To'].rest_length = 1
+        bone.pose.bones['Bone'].constraints['Stretch To'].volume = 'NO_VOLUME'
+        bpy.ops.object.posemode_toggle()
+
+        # Left Leg
+        bpy.ops.object.armature_add()
+        thigh_l = bpy.context.object
+        bpy.context.object.name = 'thigh_l'
+        bonename = bpy.context.object.name
+        bone = bpy.data.objects[bonename]
+        bpy.ops.object.constraint_add(type='COPY_LOCATION')
+        bone.constraints['Copy Location'].target = bpy.data.objects['23 left hip']
+        bpy.ops.object.posemode_toggle()
+        bpy.ops.pose.constraint_add(type="STRETCH_TO")
+        bone.pose.bones['Bone'].constraints['Stretch To'].target = bpy.data.objects['25 left knee']
+        bone.pose.bones['Bone'].constraints['Stretch To'].rest_length = 1
+        bone.pose.bones['Bone'].constraints['Stretch To'].volume = 'NO_VOLUME'
+        bpy.ops.object.posemode_toggle()
+
+        bpy.ops.object.armature_add()
+        calf_l = bpy.context.object
+        bpy.context.object.name = 'calf_l'
+        bonename = bpy.context.object.name
+        bone = bpy.data.objects[bonename]
+        bpy.ops.object.constraint_add(type='COPY_LOCATION')
+        bone.constraints['Copy Location'].target = bpy.data.objects['25 left knee']
+        bpy.ops.object.posemode_toggle()
+        bpy.ops.pose.constraint_add(type="STRETCH_TO")
+        bone.pose.bones['Bone'].constraints['Stretch To'].target = bpy.data.objects['27 left ankle']
+        bone.pose.bones['Bone'].constraints['Stretch To'].rest_length = 1
+        bone.pose.bones['Bone'].constraints['Stretch To'].volume = 'NO_VOLUME'
+        bpy.ops.object.posemode_toggle()
+
+        bpy.ops.object.armature_add()
+        foot_l = bpy.context.object
+        bpy.context.object.name = 'foot_l'
+        bonename = bpy.context.object.name
+        bone = bpy.data.objects[bonename]
+        bpy.ops.object.constraint_add(type='COPY_LOCATION')
+        bone.constraints['Copy Location'].target = bpy.data.objects['27 left ankle']
+        bpy.ops.object.posemode_toggle()
+        bpy.ops.pose.constraint_add(type="STRETCH_TO")
+        bone.pose.bones['Bone'].constraints['Stretch To'].target = bpy.data.objects['31 left foot index']
+        bone.pose.bones['Bone'].constraints['Stretch To'].rest_length = 1
+        bone.pose.bones['Bone'].constraints['Stretch To'].volume = 'NO_VOLUME'
+        bpy.ops.object.posemode_toggle()
+
+        # Right Leg
+        bpy.ops.object.armature_add()
+        thigh_r = bpy.context.object
+        bpy.context.object.name = 'thigh_r'
+        bonename = bpy.context.object.name
+        bone = bpy.data.objects[bonename]
+        bpy.ops.object.constraint_add(type='COPY_LOCATION')
+        bone.constraints['Copy Location'].target = bpy.data.objects['24 right hip']
+        bpy.ops.object.posemode_toggle()
+        bpy.ops.pose.constraint_add(type="STRETCH_TO")
+        bone.pose.bones['Bone'].constraints['Stretch To'].target = bpy.data.objects['26 right knee']
+        bone.pose.bones['Bone'].constraints['Stretch To'].rest_length = 1
+        bone.pose.bones['Bone'].constraints['Stretch To'].volume = 'NO_VOLUME'
+        bpy.ops.object.posemode_toggle()
+
+        bpy.ops.object.armature_add()
+        calf_r = bpy.context.object
+        bpy.context.object.name = 'calf_r'
+        bonename = bpy.context.object.name
+        bone = bpy.data.objects[bonename]
+        bpy.ops.object.constraint_add(type='COPY_LOCATION')
+        bone.constraints['Copy Location'].target = bpy.data.objects['26 right knee']
+        bpy.ops.object.posemode_toggle()
+        bpy.ops.pose.constraint_add(type="STRETCH_TO")
+        bone.pose.bones['Bone'].constraints['Stretch To'].target = bpy.data.objects['28 right ankle']
+        bone.pose.bones['Bone'].constraints['Stretch To'].rest_length = 1
+        bone.pose.bones['Bone'].constraints['Stretch To'].volume = 'NO_VOLUME'
+        bpy.ops.object.posemode_toggle()
+
+        bpy.ops.object.armature_add()
+        foot_r = bpy.context.object
+        bpy.context.object.name = 'foot_r'
+        bonename = bpy.context.object.name
+        bone = bpy.data.objects[bonename]
+        bpy.ops.object.constraint_add(type='COPY_LOCATION')
+        bone.constraints['Copy Location'].target = bpy.data.objects['28 right ankle']
+        bpy.ops.object.posemode_toggle()
+        bpy.ops.pose.constraint_add(type="STRETCH_TO")
+        bone.pose.bones['Bone'].constraints['Stretch To'].target = bpy.data.objects['32 right foot index']
+        bone.pose.bones['Bone'].constraints['Stretch To'].rest_length = 1
+        bone.pose.bones['Bone'].constraints['Stretch To'].volume = 'NO_VOLUME'
+        bpy.ops.object.posemode_toggle()
+
+
+        # Parenting Bone Chains
+
+        thigh_r.parent = pelvis
+        thigh_r.parent_type = 'ARMATURE'
+
+        thigh_l.parent = pelvis
+        thigh_r.parent_type = 'ARMATURE'
+
+        neck.parent = pelvis
+        neck.parent_type = 'ARMATURE'
+
+        clavicle_r.parent = neck
+        clavicle_r.parent_type = 'ARMATURE'
+
+        clavicle_l.parent = neck
+        clavicle_l.parent_type = 'ARMATURE'
+
+        upperarm_r.parent = clavicle_r
+        upperarm_r.parent_type = 'ARMATURE'
+
+        upperarm_l.parent = clavicle_l
+        upperarm_l.parent_type = 'ARMATURE'
+
+        lowerarm_r.parent = upperarm_r
+        lowerarm_r.parent_type = 'ARMATURE'
+
+        lowerarm_l.parent = upperarm_l
+        lowerarm_l.parent_type = 'ARMATURE'
+
+        calf_r.parent = thigh_r
+        calf_r.parent_type = 'ARMATURE'
+
+        foot_r.parent = calf_r
+        foot_r.parent_type = 'ARMATURE'
+
+        calf_l.parent = thigh_l
+        calf_l.parent_type = 'ARMATURE'
+
+        foot_l.parent = calf_l
+        foot_l.parent_type = 'ARMATURE'
+
+        return {'FINISHED'}
+
+class BlendyPosePanel(Panel):
     bl_label = "PosePipe"
     bl_category = "PosePipe"
     bl_idname = "VIEW3D_PT_BlendyPose"
@@ -447,7 +762,7 @@ class BlendyPosePanel(bpy.types.Panel):
         column.operator(RunFileSelector.bl_idname, text="Load Video File", icon='FILE_MOVIE')
 
         row = layout.row()
-        row.label(text="Capture Mode", icon='FILE_SCRIPT')
+        row.label(text="Capture Mode", icon='PREFERENCES')
 
         box = layout.box()
         column_flow = box.column_flow()
@@ -456,17 +771,20 @@ class BlendyPosePanel(bpy.types.Panel):
         column.prop(settings, 'face_tracking', text='Face', icon='MONKEY')
         column.prop(settings, 'hand_tracking', text='Hands', icon='VIEW_PAN')
         column.prop(settings, 'body_tracking', text='Body', icon='ARMATURE_DATA')
-
-        row = layout.row()
-        row.label(text="Capture Settings", icon='PREFERENCES')
-
-        box = layout.box()
-        column_flow = box.column_flow()
-        column = column_flow.column(align=True)
+        column.label(text='Capture Settings:')
         column.prop(settings, 'model_complexity', text='Model Complexity:')
         column.prop(settings, 'detection_confidence', text='Detection:')
         column.prop(settings, 'tracking_confidence', text='Tracking:')
         column.prop(settings, 'smoothing', text='Jitter Smoothing', icon='MOD_SMOOTH')
+
+        row = layout.row()
+        row.label(text="Armature Generation", icon='BONE_DATA')
+
+        box = layout.box()
+        column_flow = box.column_flow()
+        column = column_flow.column(align=True)
+        column.label(text='Select Armature Type:')
+        column.operator(SkeletonBuilder.bl_idname, text="Generate Body", icon='ARMATURE_DATA')
         
         
 _classes = [
@@ -474,6 +792,7 @@ _classes = [
     BlendyPosePanel,
     RunOperator,
     RunFileSelector,
+    SkeletonBuilder,
 ]
 
 
