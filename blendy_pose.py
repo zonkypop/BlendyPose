@@ -466,6 +466,7 @@ class SkeletonBuilder(bpy.types.Operator):
         bpy.ops.object.armature_add(radius=0.3)
         pelvis = bpy.context.object
         bpy.context.object.name = 'pelvis'
+        bpy.context.object.data.display_type = 'STICK'
         bonename = bpy.context.object.name
         bone = bpy.data.objects[bonename]
         bpy.ops.object.constraint_add(type='COPY_LOCATION')
@@ -507,6 +508,7 @@ class SkeletonBuilder(bpy.types.Operator):
         bpy.ops.object.armature_add(radius=0.3)
         neck = bpy.context.object
         bpy.context.object.name = 'neck'
+        bpy.context.object.data.display_type = 'STICK'
         bonename = bpy.context.object.name
         bone = bpy.data.objects[bonename]
         bpy.ops.object.constraint_add(type='COPY_LOCATION')
@@ -519,6 +521,7 @@ class SkeletonBuilder(bpy.types.Operator):
         bpy.ops.object.armature_add()
         clavicle_l = bpy.context.object
         bpy.context.object.name = 'clavicle_l'
+        bpy.context.object.data.display_type = 'STICK'
         bonename = bpy.context.object.name
         bone = bpy.data.objects[bonename]
         bpy.ops.object.constraint_add(type='COPY_LOCATION')
@@ -534,6 +537,7 @@ class SkeletonBuilder(bpy.types.Operator):
         bpy.ops.object.armature_add()
         upperarm_l = bpy.context.object
         bpy.context.object.name = 'upperarm_l'
+        bpy.context.object.data.display_type = 'STICK'
         bonename = bpy.context.object.name
         bone = bpy.data.objects[bonename]
         bpy.ops.object.constraint_add(type='COPY_LOCATION')
@@ -548,6 +552,7 @@ class SkeletonBuilder(bpy.types.Operator):
         bpy.ops.object.armature_add()
         lowerarm_l = bpy.context.object
         bpy.context.object.name = 'lowerarm_l'
+        bpy.context.object.data.display_type = 'STICK'
         bonename = bpy.context.object.name
         bone = bpy.data.objects[bonename]
         bpy.ops.object.constraint_add(type='COPY_LOCATION')
@@ -564,6 +569,7 @@ class SkeletonBuilder(bpy.types.Operator):
         bpy.ops.object.armature_add()
         clavicle_r = bpy.context.object
         bpy.context.object.name = 'clavicle_r'
+        bpy.context.object.data.display_type = 'STICK'
         bonename = bpy.context.object.name
         bone = bpy.data.objects[bonename]
         bpy.ops.object.constraint_add(type='COPY_LOCATION')
@@ -579,6 +585,7 @@ class SkeletonBuilder(bpy.types.Operator):
         bpy.ops.object.armature_add()
         upperarm_r = bpy.context.object
         bpy.context.object.name = 'upperarm_r'
+        bpy.context.object.data.display_type = 'STICK'
         bonename = bpy.context.object.name
         bone = bpy.data.objects[bonename]
         bpy.ops.object.constraint_add(type='COPY_LOCATION')
@@ -593,6 +600,7 @@ class SkeletonBuilder(bpy.types.Operator):
         bpy.ops.object.armature_add()
         lowerarm_r = bpy.context.object
         bpy.context.object.name = 'lowerarm_r'
+        bpy.context.object.data.display_type = 'STICK'
         bonename = bpy.context.object.name
         bone = bpy.data.objects[bonename]
         bpy.ops.object.constraint_add(type='COPY_LOCATION')
@@ -608,6 +616,7 @@ class SkeletonBuilder(bpy.types.Operator):
         bpy.ops.object.armature_add()
         thigh_l = bpy.context.object
         bpy.context.object.name = 'thigh_l'
+        bpy.context.object.data.display_type = 'STICK'
         bonename = bpy.context.object.name
         bone = bpy.data.objects[bonename]
         bpy.ops.object.constraint_add(type='COPY_LOCATION')
@@ -622,6 +631,7 @@ class SkeletonBuilder(bpy.types.Operator):
         bpy.ops.object.armature_add()
         calf_l = bpy.context.object
         bpy.context.object.name = 'calf_l'
+        bpy.context.object.data.display_type = 'STICK'
         bonename = bpy.context.object.name
         bone = bpy.data.objects[bonename]
         bpy.ops.object.constraint_add(type='COPY_LOCATION')
@@ -636,6 +646,7 @@ class SkeletonBuilder(bpy.types.Operator):
         bpy.ops.object.armature_add()
         foot_l = bpy.context.object
         bpy.context.object.name = 'foot_l'
+        bpy.context.object.data.display_type = 'STICK'
         bonename = bpy.context.object.name
         bone = bpy.data.objects[bonename]
         bpy.ops.object.constraint_add(type='COPY_LOCATION')
@@ -651,6 +662,7 @@ class SkeletonBuilder(bpy.types.Operator):
         bpy.ops.object.armature_add()
         thigh_r = bpy.context.object
         bpy.context.object.name = 'thigh_r'
+        bpy.context.object.data.display_type = 'STICK'
         bonename = bpy.context.object.name
         bone = bpy.data.objects[bonename]
         bpy.ops.object.constraint_add(type='COPY_LOCATION')
@@ -665,6 +677,7 @@ class SkeletonBuilder(bpy.types.Operator):
         bpy.ops.object.armature_add()
         calf_r = bpy.context.object
         bpy.context.object.name = 'calf_r'
+        bpy.context.object.data.display_type = 'STICK'
         bonename = bpy.context.object.name
         bone = bpy.data.objects[bonename]
         bpy.ops.object.constraint_add(type='COPY_LOCATION')
@@ -679,6 +692,7 @@ class SkeletonBuilder(bpy.types.Operator):
         bpy.ops.object.armature_add()
         foot_r = bpy.context.object
         bpy.context.object.name = 'foot_r'
+        bpy.context.object.data.display_type = 'STICK'
         bonename = bpy.context.object.name
         bone = bpy.data.objects[bonename]
         bpy.ops.object.constraint_add(type='COPY_LOCATION')
