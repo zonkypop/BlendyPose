@@ -117,7 +117,7 @@ def body_setup():
         bpy.ops.mesh.primitive_cube_add()
         box = bpy.context.active_object
         box.name = body_names[k]
-        box.scale = [0.005, 0.005, 0.005]
+        box.scale = [0.003, 0.003, 0.003]
         box.parent = body
         box.color = (0,255,0,255)
 
@@ -155,7 +155,7 @@ def hands_setup():
             bpy.ops.mesh.primitive_cube_add()
             box = bpy.context.active_object
             box.name = str(k).zfill(2) + "Hand Left"
-            box.scale = (0.01, 0.01, 0.01)
+            box.scale = (0.005, 0.005, 0.005)
             box.parent = hand_left
             box.color = (0,0,255,255)
 
@@ -169,7 +169,7 @@ def hands_setup():
             bpy.ops.mesh.primitive_cube_add()
             box = bpy.context.active_object
             box.name = str(k).zfill(2) + "Hand Right"
-            box.scale = (0.01, 0.01, 0.01)
+            box.scale = (0.005, 0.005, 0.005)
             box.parent = hand_right
             box.color = (255,0,0,255)    
 
@@ -209,7 +209,7 @@ def face_setup():
             bpy.ops.mesh.primitive_cube_add()
             box = bpy.context.active_object
             box.name = str(k).zfill(3) + "Face"
-            box.scale = (0.004, 0.004, 0.004)
+            box.scale = (0.002, 0.002, 0.002)
             box.parent = face
             box.color = (255,0,255,255)
 
