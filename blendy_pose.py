@@ -1,7 +1,7 @@
 bl_info = {
     "name": "PosePipe",
     "author": "ZonkoSoft, SpectralVectors",
-    "version": (0, 5),
+    "version": (0, 6),
     "blender": (2, 80, 0),
     "location": "3D View > Sidebar > PosePipe",
     "description": "Motion capture using your camera!",
@@ -15,6 +15,15 @@ from bpy.utils import register_class, unregister_class
 from bpy_extras.io_utils import ImportHelper
 import time
 
+bone_translate = {
+    'clavicle_l' : {
+        'bone_name': 'clavicle_l',
+        'rigify_name': 'shoulder.L',
+        'unreal_name': 'clavicle_l',
+        'copy_location': '11 right shoulder',
+        'stretch_to': '12 left shoulder',
+    }
+}
 
 body_names = [
 "00 nose",
@@ -313,9 +322,9 @@ def run_full(file_path):
                     bones = sorted(body.children, key=lambda b: b.name)
 
                     for k in range(33):
-                        bones[k].location.y = (bns[k].z)*0.5
-                        bones[k].location.x = (0.5-bns[k].x)*scale
-                        bones[k].location.z = (0.5-bns[k].y)*scale
+                        bones[k].location.y = bns[k].z / 4
+                        bones[k].location.x = (0.5-bns[k].x)
+                        bones[k].location.z = (0.2-bns[k].y) + 2
                         bones[k].keyframe_insert(data_path="location", frame=n)
                         
             if settings.hand_tracking:
@@ -324,20 +333,22 @@ def run_full(file_path):
                     scale = 2
                     bones = sorted(hand_left.children, key=lambda b: b.name)
                     for k in range(21):
-                        bones[k].location.y = (bns[k].z)*scale
-                        bones[k].location.x = (0.5-bns[k].x)*scale
-                        bones[k].location.z = (0.5-bns[k].y)*scale
+                        bones[k].location.y = bns[k].z * 2
+                        bones[k].location.x = (0.5-bns[k].x)
+                        bones[k].location.z = (0.2-bns[k].y) + 2
                         bones[k].keyframe_insert(data_path="location", frame=n)
+
 
                 if results.right_hand_landmarks:
                     bns = [b for b in results.right_hand_landmarks.landmark]
                     scale = 2
                     bones = sorted(hand_right.children, key=lambda b: b.name)
                     for k in range(21):
-                        bones[k].location.y = (bns[k].z)*scale
-                        bones[k].location.x = (0.5-bns[k].x)*scale
-                        bones[k].location.z = (0.5-bns[k].y)*scale
+                        bones[k].location.y = bns[k].z * 2
+                        bones[k].location.x = (0.5-bns[k].x)
+                        bones[k].location.z = (0.2-bns[k].y) + 2
                         bones[k].keyframe_insert(data_path="location", frame=n)
+
 
             if settings.face_tracking:
                 if results.face_landmarks:
@@ -345,10 +356,11 @@ def run_full(file_path):
                     scale = 2
                     bones = sorted(face.children, key=lambda b: b.name)
                     for k in range(468):
-                        bones[k].location.y = (bns[k].z)*scale
-                        bones[k].location.x = (0.5-bns[k].x)*scale
-                        bones[k].location.z = (0.5-bns[k].y)*scale
+                        bones[k].location.y = bns[k].z * 2
+                        bones[k].location.x = (0.5-bns[k].x)
+                        bones[k].location.z = (0.2-bns[k].y) + 2
                         bones[k].keyframe_insert(data_path="location", frame=n)
+
 
             if settings.face_tracking: 
                 mp_drawing.draw_landmarks(
@@ -376,10 +388,10 @@ def run_full(file_path):
             image = cv2.flip(image, 1)
             
             currentTime = time.time()
-            fps = 1/(currentTime - previousTime)
+            capture_fps = 1 / (currentTime - previousTime)
             previousTime = currentTime
             cv2.putText(img=image, 
-                        text='FPS: ' + str(int(fps)), 
+                        text='FPS: ' + str(int(capture_fps)), 
                         org=(10,30), 
                         fontFace=cv2.FONT_HERSHEY_PLAIN, 
                         fontScale=2, 
@@ -395,6 +407,73 @@ def run_full(file_path):
 
     cap.release()
     cv2.destroyAllWindows()
+
+    settings.capture_fps = capture_fps
+
+    # Attach hands and face to body
+    bpy.context.view_layer.objects.active = bpy.data.objects['Face']
+    bpy.ops.object.constraint_add(type='COPY_LOCATION')
+    bpy.data.objects['Face'].constraints['Copy Location'].target = bpy.data.objects['Pose']
+    bpy.data.objects['Face'].constraints["Copy Location"].use_y = False
+    bpy.ops.object.constraint_add(type='COPY_LOCATION')
+    bpy.data.objects['Face'].constraints['Copy Location.001'].target = bpy.data.objects['00 nose']
+    bpy.data.objects['Face'].constraints["Copy Location.001"].use_x = False
+    bpy.data.objects['Face'].constraints["Copy Location.001"].use_z = False
+
+    bpy.context.view_layer.objects.active = bpy.data.objects['Hand Right']
+    bpy.ops.object.constraint_add(type='COPY_LOCATION')
+    bpy.data.objects['Hand Right'].constraints['Copy Location'].target = bpy.data.objects['Pose']
+    bpy.data.objects['Hand Right'].constraints["Copy Location"].use_y = False
+    bpy.ops.object.constraint_add(type='COPY_LOCATION')
+    bpy.data.objects['Hand Right'].constraints['Copy Location.001'].target = bpy.data.objects['16 right wrist']
+    bpy.data.objects['Hand Right'].constraints["Copy Location.001"].use_x = False
+    bpy.data.objects['Hand Right'].constraints["Copy Location.001"].use_z = False 
+    
+    bpy.context.view_layer.objects.active = bpy.data.objects['Hand Left']
+    bpy.ops.object.constraint_add(type='COPY_LOCATION')
+    bpy.data.objects['Hand Left'].constraints['Copy Location'].target = bpy.data.objects['Pose']
+    bpy.data.objects['Hand Left'].constraints["Copy Location"].use_y = False
+    bpy.ops.object.constraint_add(type='COPY_LOCATION')
+    bpy.data.objects['Hand Left'].constraints['Copy Location.001'].target = bpy.data.objects['15 left wrist']
+    bpy.data.objects['Hand Left'].constraints["Copy Location.001"].use_x = False
+    bpy.data.objects['Hand Left'].constraints["Copy Location.001"].use_z = False
+
+
+class RetimeAnimation(bpy.types.Operator):
+    """Builds an armature to use with the mocap data"""
+    bl_idname = "posepipe.retime_animation"
+    bl_label = "Retime Animation"
+
+    def execute(self, context):
+
+        # Retime animation
+        #bpy.data.objects['Pose'].select_set(True)
+        scene_objects = [n for n in bpy.context.scene.objects.keys()]
+        
+        if "Body" in scene_objects:
+            for c in bpy.context.scene.objects["Body"].children:
+                bpy.data.objects[c.name].select_set(True)
+        if "Hand Left" in scene_objects:
+            for c in bpy.context.scene.objects["Hand Left"].children:
+                bpy.data.objects[c.name].select_set(True)
+        if "Hand Right" in scene_objects:
+            for c in bpy.context.scene.objects["Hand Right"].children:
+                bpy.data.objects[c.name].select_set(True)
+        if "Face" in scene_objects:
+            for c in bpy.context.scene.objects["Face"].children:
+                bpy.data.objects[c.name].select_set(True)
+
+        bpy.data.scenes['Scene'].frame_current = 0
+        frame_rate = bpy.data.scenes['Scene'].render.fps
+        timescale = frame_rate / bpy.context.scene.settings.capture_fps
+        #bpy.context.area.type =  bpy.data.screens['Layout'].areas[2].type
+        context.area.type = 'DOPESHEET_EDITOR'
+        context.area.spaces[0].mode = 'TIMELINE'
+        bpy.ops.transform.transform(mode='TIME_SCALE', value=(timescale, 0, 0, 0))
+        #bpy.context.area.type = bpy.data.screens['Layout'].areas[-1].type
+        context.area.type = 'VIEW_3D'
+        return{'FINISHED'}
+
 
 
 def draw_file_opener(self, context):
@@ -438,12 +517,12 @@ class Settings(PropertyGroup):
                                         soft_max=10, 
                                         description="If you have more than one camera, you can choose here. 0 should work for most users.")
     
-    tracking_confidence: bpy.props.FloatProperty(default=0.3,
+    tracking_confidence: bpy.props.FloatProperty(default=0.5,
                                         soft_min=0.1,
                                         soft_max=1,
                                         description="Minimum level of data necessary to track, higher numbers = higher latency.")
     
-    detection_confidence: bpy.props.FloatProperty(default=0.3,
+    detection_confidence: bpy.props.FloatProperty(default=0.5,
                                         soft_min=0.1,
                                         soft_max=1,
                                         description="Minimum level of data necessary to detect, higher numbers = higher latency.")
@@ -455,6 +534,9 @@ class Settings(PropertyGroup):
                                             soft_min=0,
                                             soft_max=2,
                                             description='Complexity of the tracking model, higher numbers = higher latency')
+
+    capture_fps: bpy.props.IntProperty(default=0,
+                                        description='Framerate of the motion capture')
 
 class SkeletonBuilder(bpy.types.Operator):
     """Builds an armature to use with the mocap data"""
@@ -748,65 +830,69 @@ class SkeletonBuilder(bpy.types.Operator):
 
         return {'FINISHED'}
 
-class BlendyPosePanel(Panel):
-    bl_label = "PosePipe"
+class PosePipePanel(Panel):
+    bl_label = "PosePipe - Camera MoCap"
     bl_category = "PosePipe"
-    bl_idname = "VIEW3D_PT_BlendyPose"
+    bl_idname = "VIEW3D_PT_Pose"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_label = "PosePipe"
 
     def draw(self, context):
 
         settings = context.scene.settings
 
         layout = self.layout
-
-        row = layout.row()
-        row.label(text="Camera Motion Capture", icon='VIEW_CAMERA')
         
         box = layout.box()
         column_flow = box.column_flow()
         column = column_flow.column(align=True)
-        column.label(text='Camera Settings:')
+        column.label(text="Camera Settings:", icon='VIEW_CAMERA')
         column.operator(RunOperator.bl_idname, text="Start Camera", icon='CAMERA_DATA')
         split = column.split(factor=0.6)
         split.prop(settings, 'camera_number', text='Camera: ')
         split.label(text="to Exit", icon='EVENT_ESC')
         column.operator(RunFileSelector.bl_idname, text="Load Video File", icon='FILE_MOVIE')
 
-        row = layout.row()
-        row.label(text="Capture Mode", icon='PREFERENCES')
+        #row = layout.row()
 
         box = layout.box()
         column_flow = box.column_flow()
         column = column_flow.column(align=True)
-        column.label(text='Select Data to Capture:')
-        column.prop(settings, 'face_tracking', text='Face', icon='MONKEY')
-        column.prop(settings, 'hand_tracking', text='Hands', icon='VIEW_PAN')
+        column.label(text="Capture Mode:", icon='MOD_ARMATURE')
         column.prop(settings, 'body_tracking', text='Body', icon='ARMATURE_DATA')
-        column.label(text='Capture Settings:')
-        column.prop(settings, 'model_complexity', text='Model Complexity:')
-        column.prop(settings, 'detection_confidence', text='Detection:')
-        column.prop(settings, 'tracking_confidence', text='Tracking:')
+        column.prop(settings, 'hand_tracking', text='Hands', icon='VIEW_PAN')
+        column.prop(settings, 'face_tracking', text='Face', icon='MONKEY')
+        column.label(text='Capture Settings:', icon='PREFERENCES')
         column.prop(settings, 'smoothing', text='Jitter Smoothing', icon='MOD_SMOOTH')
+        column.prop(settings, 'model_complexity', text='Model Complexity:')
+        column.prop(settings, 'detection_confidence', text='Detect Confidence:')
+        column.prop(settings, 'tracking_confidence', text='Track Confidence:')
 
-        row = layout.row()
-        row.label(text="Armature Generation", icon='BONE_DATA')
+        #row = layout.row()        
+        
+        box = layout.box()
+        column_flow = box.column_flow()
+        column = column_flow.column(align=True)
+        column.label(text="Edit Capture Data:", icon='MODIFIER_ON')
+        column.operator(RetimeAnimation.bl_idname, text="Retime Animation", icon='MOD_TIME')
+
+        #row = layout.row()
 
         box = layout.box()
         column_flow = box.column_flow()
         column = column_flow.column(align=True)
-        column.label(text='Select Armature Type:')
-        column.operator(SkeletonBuilder.bl_idname, text="Generate Body", icon='ARMATURE_DATA')
+        column.label(text="Generate Armature:", icon='BONE_DATA')
+        column.operator(SkeletonBuilder.bl_idname, text="Body Bones", icon='ARMATURE_DATA')
+        
         
         
 _classes = [
     Settings,
-    BlendyPosePanel,
+    PosePipePanel,
     RunOperator,
     RunFileSelector,
     SkeletonBuilder,
+    RetimeAnimation,
 ]
 
 
