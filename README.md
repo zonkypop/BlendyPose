@@ -1,6 +1,6 @@
 # PosePipe
 Blender Motion Capture using your camera!
-![Screenshot](/screenshots/BlendyPoseScreenshot.png)
+![Screenshot](/screenshots/PosePipeScreenshot.png)
 ![GIF](/screenshots/PosePipeDemo1.gif)
 
 ## Note
