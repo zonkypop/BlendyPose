@@ -333,9 +333,9 @@ def run_full(file_path):
                     scale = 2
                     bones = sorted(hand_left.children, key=lambda b: b.name)
                     for k in range(21):
-                        bones[k].location.y = bns[k].z * 2
+                        bones[k].location.y = bns[k].z
                         bones[k].location.x = (0.5-bns[k].x)
-                        bones[k].location.z = (0.2-bns[k].y) + 2
+                        bones[k].location.z = (0.5-bns[k].y)/2 + 1.6
                         bones[k].keyframe_insert(data_path="location", frame=n)
 
 
@@ -344,9 +344,9 @@ def run_full(file_path):
                     scale = 2
                     bones = sorted(hand_right.children, key=lambda b: b.name)
                     for k in range(21):
-                        bones[k].location.y = bns[k].z * 2
+                        bones[k].location.y = bns[k].z
                         bones[k].location.x = (0.5-bns[k].x)
-                        bones[k].location.z = (0.2-bns[k].y) + 2
+                        bones[k].location.z = (0.5-bns[k].y)/2 + 1.6
                         bones[k].keyframe_insert(data_path="location", frame=n)
 
 
