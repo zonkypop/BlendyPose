@@ -356,7 +356,7 @@ def run_full(file_path):
                     scale = 2
                     bones = sorted(face.children, key=lambda b: b.name)
                     for k in range(468):
-                        bones[k].location.y = bns[k].z * 2
+                        bones[k].location.y = bns[k].z
                         bones[k].location.x = (0.5-bns[k].x)
                         bones[k].location.z = (0.2-bns[k].y) + 2
                         bones[k].keyframe_insert(data_path="location", frame=n)
@@ -569,7 +569,7 @@ class SkeletonBuilder(bpy.types.Operator):
 
         bpy.ops.armature.bone_primitive_add(name="spine01")
         spine01 = bpy.context.active_object.data.edit_bones["spine01"]
-        bpy.context.active_object.data.edit_bones["spine01"].tail[2] = 0.2
+        bpy.context.active_object.data.edit_bones["spine01"].tail[2] = 0.1
         spine01.parent = pelvis
 
         bpy.ops.armature.bone_primitive_add(name="spine02")
@@ -579,7 +579,7 @@ class SkeletonBuilder(bpy.types.Operator):
 
         bpy.ops.armature.bone_primitive_add(name="spine03")
         spine03 = bpy.context.active_object.data.edit_bones["spine03"]
-        bpy.context.active_object.data.edit_bones["spine03"].tail[2] = 0.2
+        bpy.context.active_object.data.edit_bones["spine03"].tail[2] = 0.1
         spine03.parent = spine02
 
         bpy.ops.armature.bone_primitive_add(name="neck_01")
@@ -664,7 +664,7 @@ class SkeletonBuilder(bpy.types.Operator):
         bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['spine01'].bone
         #bpy.ops.pose.constraint_add(type='COPY_LOCATION')
         PosePipe_BodyBones.pose.bones['spine01'].location[1] = 0.1
-        PosePipe_BodyBones.pose.bones['spine02'].location[1] = 0.2
+        PosePipe_BodyBones.pose.bones['spine02'].location[1] = 0.1
         PosePipe_BodyBones.pose.bones['spine03'].location[1] = 0.1
         PosePipe_BodyBones.pose.bones['neck_01'].location[1] = 0.1
         PosePipe_BodyBones.pose.bones['head'].location[1] = 0.1
@@ -674,6 +674,8 @@ class SkeletonBuilder(bpy.types.Operator):
         bpy.context.object.pose.bones["spine03"].constraints["IK"].target = PosePipe_BodyBones
         bpy.context.object.pose.bones["spine03"].constraints["IK"].subtarget = 'neck_01'
         bpy.context.object.pose.bones["spine03"].constraints["IK"].chain_count = 3
+        bpy.context.object.pose.bones["spine03"].constraints["IK"].pole_target = PosePipe_BodyBones
+        bpy.context.object.pose.bones["spine03"].constraints["IK"].pole_subtarget = 'neck_01'
 
         bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['clavicle_l'].bone
         bpy.ops.pose.constraint_add(type='COPY_LOCATION')
