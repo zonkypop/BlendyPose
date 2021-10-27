@@ -1,7 +1,7 @@
 # PosePipe
 Blender Motion Capture using your camera!
 ![Screenshot](/screenshots/PosePipeScreenshot.png)
-![GIF](/screenshots/PosePipeDemo1.gif)
+![GIF](/screenshots/PosePipeDemo4.gif)
 
 ## Note
 This will install to Blender's Python path, rather than your system's.
