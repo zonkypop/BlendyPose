@@ -1,7 +1,7 @@
 bl_info = {
     "name": "PosePipe",
     "author": "ZonkoSoft, SpectralVectors",
-    "version": (0, 7),
+    "version": (0, 8),
     "blender": (2, 80, 0),
     "location": "3D View > Sidebar > PosePipe",
     "description": "Motion capture using your camera!",
@@ -547,6 +547,8 @@ class SkeletonBuilder(bpy.types.Operator):
 
     def execute(self, context):
 
+        settings = bpy.context.scene.settings
+
         bpy.ops.object.armature_add(radius=0.1)
 
         PosePipe_BodyBones = bpy.context.object
@@ -651,6 +653,167 @@ class SkeletonBuilder(bpy.types.Operator):
         lowerarm_r = bpy.context.active_object.data.edit_bones["lowerarm_r"]
         bpy.context.active_object.data.edit_bones["lowerarm_r"].tail[2] = 0.1
         lowerarm_r.parent = upperarm_r
+        
+        if settings.hand_tracking:
+            bpy.ops.armature.bone_primitive_add(name="hand_l")
+            hand_l = bpy.context.active_object.data.edit_bones["hand_l"]
+            bpy.context.active_object.data.edit_bones["hand_l"].tail[2] = 0.1
+            hand_l.parent = lowerarm_l
+
+            bpy.ops.armature.bone_primitive_add(name="thumb_01_l")
+            thumb_01_l = bpy.context.active_object.data.edit_bones["thumb_01_l"]
+            bpy.context.active_object.data.edit_bones["thumb_01_l"].tail[2] = 0.1
+            thumb_01_l.parent = hand_l
+
+            bpy.ops.armature.bone_primitive_add(name="thumb_02_l")
+            thumb_02_l = bpy.context.active_object.data.edit_bones["thumb_02_l"]
+            bpy.context.active_object.data.edit_bones["thumb_02_l"].tail[2] = 0.1
+            thumb_02_l.parent = thumb_01_l
+
+            bpy.ops.armature.bone_primitive_add(name="thumb_03_l")
+            thumb_03_l = bpy.context.active_object.data.edit_bones["thumb_03_l"]
+            bpy.context.active_object.data.edit_bones["thumb_03_l"].tail[2] = 0.1
+            thumb_03_l.parent = thumb_02_l
+
+            bpy.ops.armature.bone_primitive_add(name="index_01_l")
+            index_01_l = bpy.context.active_object.data.edit_bones["index_01_l"]
+            bpy.context.active_object.data.edit_bones["index_01_l"].tail[2] = 0.1
+            index_01_l.parent = hand_l
+
+            bpy.ops.armature.bone_primitive_add(name="index_02_l")
+            index_02_l = bpy.context.active_object.data.edit_bones["index_02_l"]
+            bpy.context.active_object.data.edit_bones["index_02_l"].tail[2] = 0.1
+            index_02_l.parent = index_01_l
+
+            bpy.ops.armature.bone_primitive_add(name="index_03_l")
+            index_03_l = bpy.context.active_object.data.edit_bones["index_03_l"]
+            bpy.context.active_object.data.edit_bones["index_03_l"].tail[2] = 0.1
+            index_03_l.parent = index_02_l
+
+            bpy.ops.armature.bone_primitive_add(name="middle_01_l")
+            middle_01_l = bpy.context.active_object.data.edit_bones["middle_01_l"]
+            bpy.context.active_object.data.edit_bones["middle_01_l"].tail[2] = 0.1
+            middle_01_l.parent = hand_l
+
+            bpy.ops.armature.bone_primitive_add(name="middle_02_l")
+            middle_02_l = bpy.context.active_object.data.edit_bones["middle_02_l"]
+            bpy.context.active_object.data.edit_bones["middle_02_l"].tail[2] = 0.1
+            middle_02_l.parent = middle_01_l
+
+            bpy.ops.armature.bone_primitive_add(name="middle_03_l")
+            middle_03_l = bpy.context.active_object.data.edit_bones["middle_03_l"]
+            bpy.context.active_object.data.edit_bones["middle_03_l"].tail[2] = 0.1
+            middle_03_l.parent = middle_02_l
+
+            bpy.ops.armature.bone_primitive_add(name="ring_01_l")
+            ring_01_l = bpy.context.active_object.data.edit_bones["ring_01_l"]
+            bpy.context.active_object.data.edit_bones["ring_01_l"].tail[2] = 0.1
+            ring_01_l.parent = hand_l
+
+            bpy.ops.armature.bone_primitive_add(name="ring_02_l")
+            ring_02_l = bpy.context.active_object.data.edit_bones["ring_02_l"]
+            bpy.context.active_object.data.edit_bones["ring_02_l"].tail[2] = 0.1
+            ring_02_l.parent = ring_01_l
+
+            bpy.ops.armature.bone_primitive_add(name="ring_03_l")
+            ring_03_l = bpy.context.active_object.data.edit_bones["ring_03_l"]
+            bpy.context.active_object.data.edit_bones["ring_03_l"].tail[2] = 0.1
+            ring_03_l.parent = ring_02_l
+
+            bpy.ops.armature.bone_primitive_add(name="pinky_01_l")
+            pinky_01_l = bpy.context.active_object.data.edit_bones["pinky_01_l"]
+            bpy.context.active_object.data.edit_bones["pinky_01_l"].tail[2] = 0.1
+            pinky_01_l.parent = hand_l
+
+            bpy.ops.armature.bone_primitive_add(name="pinky_02_l")
+            pinky_02_l = bpy.context.active_object.data.edit_bones["pinky_02_l"]
+            bpy.context.active_object.data.edit_bones["pinky_02_l"].tail[2] = 0.1
+            pinky_02_l.parent = pinky_01_l
+
+            bpy.ops.armature.bone_primitive_add(name="pinky_03_l")
+            pinky_03_l = bpy.context.active_object.data.edit_bones["pinky_03_l"]
+            bpy.context.active_object.data.edit_bones["pinky_03_l"].tail[2] = 0.1
+            pinky_03_l.parent = pinky_02_l
+
+            bpy.ops.armature.bone_primitive_add(name="hand_r")
+            hand_r = bpy.context.active_object.data.edit_bones["hand_r"]
+            bpy.context.active_object.data.edit_bones["hand_r"].tail[2] = 0.1
+            hand_r.parent = lowerarm_r
+
+            bpy.ops.armature.bone_primitive_add(name="thumb_01_r")
+            thumb_01_r = bpy.context.active_object.data.edit_bones["thumb_01_r"]
+            bpy.context.active_object.data.edit_bones["thumb_01_r"].tail[2] = 0.1
+            thumb_01_r.parent = hand_r
+
+            bpy.ops.armature.bone_primitive_add(name="thumb_02_r")
+            thumb_02_r = bpy.context.active_object.data.edit_bones["thumb_02_r"]
+            bpy.context.active_object.data.edit_bones["thumb_02_r"].tail[2] = 0.1
+            thumb_02_r.parent = thumb_01_r
+
+            bpy.ops.armature.bone_primitive_add(name="thumb_03_r")
+            thumb_03_r = bpy.context.active_object.data.edit_bones["thumb_03_r"]
+            bpy.context.active_object.data.edit_bones["thumb_03_r"].tail[2] = 0.1
+            thumb_03_r.parent = thumb_02_r
+
+            bpy.ops.armature.bone_primitive_add(name="index_01_r")
+            index_01_r = bpy.context.active_object.data.edit_bones["index_01_r"]
+            bpy.context.active_object.data.edit_bones["index_01_r"].tail[2] = 0.1
+            index_01_r.parent = hand_r
+
+            bpy.ops.armature.bone_primitive_add(name="index_02_r")
+            index_02_r = bpy.context.active_object.data.edit_bones["index_02_r"]
+            bpy.context.active_object.data.edit_bones["index_02_r"].tail[2] = 0.1
+            index_02_r.parent = index_01_r
+
+            bpy.ops.armature.bone_primitive_add(name="index_03_r")
+            index_03_r = bpy.context.active_object.data.edit_bones["index_03_r"]
+            bpy.context.active_object.data.edit_bones["index_03_r"].tail[2] = 0.1
+            index_03_r.parent = index_02_r
+
+            bpy.ops.armature.bone_primitive_add(name="middle_01_r")
+            middle_01_r = bpy.context.active_object.data.edit_bones["middle_01_r"]
+            bpy.context.active_object.data.edit_bones["middle_01_r"].tail[2] = 0.1
+            middle_01_r.parent = hand_r
+
+            bpy.ops.armature.bone_primitive_add(name="middle_02_r")
+            middle_02_r = bpy.context.active_object.data.edit_bones["middle_02_r"]
+            bpy.context.active_object.data.edit_bones["middle_02_r"].tail[2] = 0.1
+            middle_02_r.parent = middle_01_r
+
+            bpy.ops.armature.bone_primitive_add(name="middle_03_r")
+            middle_03_r = bpy.context.active_object.data.edit_bones["middle_03_r"]
+            bpy.context.active_object.data.edit_bones["middle_03_r"].tail[2] = 0.1
+            middle_03_r.parent = middle_02_r
+
+            bpy.ops.armature.bone_primitive_add(name="ring_01_r")
+            ring_01_r = bpy.context.active_object.data.edit_bones["ring_01_r"]
+            bpy.context.active_object.data.edit_bones["ring_01_r"].tail[2] = 0.1
+            ring_01_r.parent = hand_r
+
+            bpy.ops.armature.bone_primitive_add(name="ring_02_r")
+            ring_02_r = bpy.context.active_object.data.edit_bones["ring_02_r"]
+            bpy.context.active_object.data.edit_bones["ring_02_r"].tail[2] = 0.1
+            ring_02_r.parent = ring_01_r
+
+            bpy.ops.armature.bone_primitive_add(name="ring_03_r")
+            ring_03_r = bpy.context.active_object.data.edit_bones["ring_03_r"]
+            bpy.context.active_object.data.edit_bones["ring_03_r"].tail[2] = 0.1
+            ring_03_r.parent = ring_02_r
+
+            bpy.ops.armature.bone_primitive_add(name="pinky_01_r")
+            pinky_01_r = bpy.context.active_object.data.edit_bones["pinky_01_r"]
+            bpy.context.active_object.data.edit_bones["pinky_01_r"].tail[2] = 0.1
+            pinky_01_r.parent = hand_r
+
+            bpy.ops.armature.bone_primitive_add(name="pinky_02_r")
+            pinky_02_r = bpy.context.active_object.data.edit_bones["pinky_02_r"]
+            bpy.context.active_object.data.edit_bones["pinky_02_r"].tail[2] = 0.1
+            pinky_02_r.parent = pinky_01_r
+
+            bpy.ops.armature.bone_primitive_add(name="pinky_03_r")
+            pinky_03_r = bpy.context.active_object.data.edit_bones["pinky_03_r"]
+            bpy.context.active_object.data.edit_bones["pinky_03_r"].tail[2] = 0.1
+            pinky_03_r.parent = pinky_02_r
 
         bpy.ops.object.posemode_toggle()
 
@@ -795,6 +958,278 @@ class SkeletonBuilder(bpy.types.Operator):
         bpy.context.object.pose.bones["head"].constraints["Copy Location.002"].use_x = False
         bpy.context.object.pose.bones["head"].constraints["Copy Location.002"].use_z = False
 
+        if settings.hand_tracking:
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['hand_r'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["hand_r"].constraints['Copy Location'].target = bpy.data.objects['00Hand Right']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["hand_r"].constraints['Stretch To'].target = bpy.data.objects['09Hand Right']
+            bpy.context.object.pose.bones["hand_r"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["hand_r"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['thumb_01_r'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["thumb_01_r"].constraints['Copy Location'].target = bpy.data.objects['01Hand Right']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["thumb_01_r"].constraints['Stretch To'].target = bpy.data.objects['02Hand Right']
+            bpy.context.object.pose.bones["thumb_01_r"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["thumb_01_r"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['thumb_02_r'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["thumb_02_r"].constraints['Copy Location'].target = bpy.data.objects['02Hand Right']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["thumb_02_r"].constraints['Stretch To'].target = bpy.data.objects['03Hand Right']
+            bpy.context.object.pose.bones["thumb_02_r"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["thumb_02_r"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['thumb_03_r'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["thumb_03_r"].constraints['Copy Location'].target = bpy.data.objects['03Hand Right']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["thumb_03_r"].constraints['Stretch To'].target = bpy.data.objects['04Hand Right']
+            bpy.context.object.pose.bones["thumb_03_r"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["thumb_03_r"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['index_01_r'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["index_01_r"].constraints['Copy Location'].target = bpy.data.objects['05Hand Right']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["index_01_r"].constraints['Stretch To'].target = bpy.data.objects['06Hand Right']
+            bpy.context.object.pose.bones["index_01_r"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["index_01_r"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['index_02_r'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["index_02_r"].constraints['Copy Location'].target = bpy.data.objects['06Hand Right']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["index_02_r"].constraints['Stretch To'].target = bpy.data.objects['07Hand Right']
+            bpy.context.object.pose.bones["index_02_r"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["index_02_r"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['index_03_r'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["index_03_r"].constraints['Copy Location'].target = bpy.data.objects['07Hand Right']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["index_03_r"].constraints['Stretch To'].target = bpy.data.objects['08Hand Right']
+            bpy.context.object.pose.bones["index_03_r"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["index_03_r"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['middle_01_r'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["middle_01_r"].constraints['Copy Location'].target = bpy.data.objects['09Hand Right']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["middle_01_r"].constraints['Stretch To'].target = bpy.data.objects['10Hand Right']
+            bpy.context.object.pose.bones["middle_01_r"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["middle_01_r"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['middle_02_r'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["middle_02_r"].constraints['Copy Location'].target = bpy.data.objects['10Hand Right']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["middle_02_r"].constraints['Stretch To'].target = bpy.data.objects['11Hand Right']
+            bpy.context.object.pose.bones["middle_02_r"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["middle_02_r"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['middle_03_r'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["middle_03_r"].constraints['Copy Location'].target = bpy.data.objects['11Hand Right']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["middle_03_r"].constraints['Stretch To'].target = bpy.data.objects['12Hand Right']
+            bpy.context.object.pose.bones["middle_03_r"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["middle_03_r"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['ring_01_r'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["ring_01_r"].constraints['Copy Location'].target = bpy.data.objects['13Hand Right']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["ring_01_r"].constraints['Stretch To'].target = bpy.data.objects['14Hand Right']
+            bpy.context.object.pose.bones["ring_01_r"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["ring_01_r"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['ring_02_r'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["ring_02_r"].constraints['Copy Location'].target = bpy.data.objects['14Hand Right']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["ring_02_r"].constraints['Stretch To'].target = bpy.data.objects['15Hand Right']
+            bpy.context.object.pose.bones["ring_02_r"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["ring_02_r"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['ring_03_r'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["ring_03_r"].constraints['Copy Location'].target = bpy.data.objects['15Hand Right']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["ring_03_r"].constraints['Stretch To'].target = bpy.data.objects['16Hand Right']
+            bpy.context.object.pose.bones["ring_03_r"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["ring_03_r"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['pinky_01_r'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["pinky_01_r"].constraints['Copy Location'].target = bpy.data.objects['17Hand Right']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["pinky_01_r"].constraints['Stretch To'].target = bpy.data.objects['18Hand Right']
+            bpy.context.object.pose.bones["pinky_01_r"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["pinky_01_r"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['pinky_02_r'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["pinky_02_r"].constraints['Copy Location'].target = bpy.data.objects['18Hand Right']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["pinky_02_r"].constraints['Stretch To'].target = bpy.data.objects['19Hand Right']
+            bpy.context.object.pose.bones["pinky_02_r"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["pinky_02_r"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['pinky_03_r'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["pinky_03_r"].constraints['Copy Location'].target = bpy.data.objects['19Hand Right']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["pinky_03_r"].constraints['Stretch To'].target = bpy.data.objects['20Hand Right']
+            bpy.context.object.pose.bones["pinky_03_r"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["pinky_03_r"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['hand_l'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["hand_l"].constraints['Copy Location'].target = bpy.data.objects['00Hand Left']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["hand_l"].constraints['Stretch To'].target = bpy.data.objects['09Hand Left']
+            bpy.context.object.pose.bones["hand_l"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["hand_l"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['thumb_01_l'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["thumb_01_l"].constraints['Copy Location'].target = bpy.data.objects['01Hand Left']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["thumb_01_l"].constraints['Stretch To'].target = bpy.data.objects['02Hand Left']
+            bpy.context.object.pose.bones["thumb_01_l"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["thumb_01_l"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['thumb_02_l'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["thumb_02_l"].constraints['Copy Location'].target = bpy.data.objects['02Hand Left']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["thumb_02_l"].constraints['Stretch To'].target = bpy.data.objects['03Hand Left']
+            bpy.context.object.pose.bones["thumb_02_l"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["thumb_02_l"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['thumb_03_l'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["thumb_03_l"].constraints['Copy Location'].target = bpy.data.objects['03Hand Left']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["thumb_03_l"].constraints['Stretch To'].target = bpy.data.objects['04Hand Left']
+            bpy.context.object.pose.bones["thumb_03_l"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["thumb_03_l"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['index_01_l'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["index_01_l"].constraints['Copy Location'].target = bpy.data.objects['05Hand Left']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["index_01_l"].constraints['Stretch To'].target = bpy.data.objects['06Hand Left']
+            bpy.context.object.pose.bones["index_01_l"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["index_01_l"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['index_02_l'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["index_02_l"].constraints['Copy Location'].target = bpy.data.objects['06Hand Left']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["index_02_l"].constraints['Stretch To'].target = bpy.data.objects['07Hand Left']
+            bpy.context.object.pose.bones["index_02_l"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["index_02_l"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['index_03_l'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["index_03_l"].constraints['Copy Location'].target = bpy.data.objects['07Hand Left']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["index_03_l"].constraints['Stretch To'].target = bpy.data.objects['08Hand Left']
+            bpy.context.object.pose.bones["index_03_l"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["index_03_l"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['middle_01_l'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["middle_01_l"].constraints['Copy Location'].target = bpy.data.objects['09Hand Left']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["middle_01_l"].constraints['Stretch To'].target = bpy.data.objects['10Hand Left']
+            bpy.context.object.pose.bones["middle_01_l"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["middle_01_l"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['middle_02_l'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["middle_02_l"].constraints['Copy Location'].target = bpy.data.objects['10Hand Left']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["middle_02_l"].constraints['Stretch To'].target = bpy.data.objects['11Hand Left']
+            bpy.context.object.pose.bones["middle_02_l"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["middle_02_l"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['middle_03_l'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["middle_03_l"].constraints['Copy Location'].target = bpy.data.objects['11Hand Left']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["middle_03_l"].constraints['Stretch To'].target = bpy.data.objects['12Hand Left']
+            bpy.context.object.pose.bones["middle_03_l"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["middle_03_l"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['ring_01_l'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["ring_01_l"].constraints['Copy Location'].target = bpy.data.objects['13Hand Left']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["ring_01_l"].constraints['Stretch To'].target = bpy.data.objects['14Hand Left']
+            bpy.context.object.pose.bones["ring_01_l"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["ring_01_l"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['ring_02_l'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["ring_02_l"].constraints['Copy Location'].target = bpy.data.objects['14Hand Left']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["ring_02_l"].constraints['Stretch To'].target = bpy.data.objects['15Hand Left']
+            bpy.context.object.pose.bones["ring_02_l"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["ring_02_l"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['ring_03_l'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["ring_03_l"].constraints['Copy Location'].target = bpy.data.objects['15Hand Left']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["ring_03_l"].constraints['Stretch To'].target = bpy.data.objects['16Hand Left']
+            bpy.context.object.pose.bones["ring_03_l"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["ring_03_l"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['pinky_01_l'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["pinky_01_l"].constraints['Copy Location'].target = bpy.data.objects['17Hand Left']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["pinky_01_l"].constraints['Stretch To'].target = bpy.data.objects['18Hand Left']
+            bpy.context.object.pose.bones["pinky_01_l"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["pinky_01_l"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['pinky_02_l'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["pinky_02_l"].constraints['Copy Location'].target = bpy.data.objects['18Hand Left']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["pinky_02_l"].constraints['Stretch To'].target = bpy.data.objects['19Hand Left']
+            bpy.context.object.pose.bones["pinky_02_l"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["pinky_02_l"].constraints['Stretch To'].rest_length = 0.1
+
+            bpy.context.object.data.bones.active = PosePipe_BodyBones.pose.bones['pinky_03_l'].bone
+            bpy.ops.pose.constraint_add(type='COPY_LOCATION')
+            bpy.context.object.pose.bones["pinky_03_l"].constraints['Copy Location'].target = bpy.data.objects['19Hand Left']
+            bpy.ops.pose.constraint_add(type="STRETCH_TO")
+            bpy.context.object.pose.bones["pinky_03_l"].constraints['Stretch To'].target = bpy.data.objects['20Hand Left']
+            bpy.context.object.pose.bones["pinky_03_l"].constraints['Stretch To'].volume = 'NO_VOLUME'
+            bpy.context.object.pose.bones["pinky_03_l"].constraints['Stretch To'].rest_length = 0.1
+
+        hide_trackers = ['Body','Hand Left','Hand Right','Face',
+                        '17 left pinky', '18 right pinky', '19 left index', 
+                        '20 right index', '21 left thumb', '22 right thumb']
+
+        for tracker in hide_trackers:
+            bpy.data.objects[tracker].hide_set(True)
+
+        face_trackers = ['00 nose', '01 left eye (inner)', '02 left eye', '03 left eye (outer)',
+                        '04 right eye (inner)', '05 right eye', '06 right eye (outer)',
+                        '07 left ear', '08 right ear', '09 mouth (left)', '10 mouth (right)']
+
+        if settings.face_tracking:
+            for tracker in face_trackers:
+                bpy.data.objects[tracker].hide_set(True)
+
         return {'FINISHED'}
 
 class PosePipePanel(Panel):
@@ -820,7 +1255,6 @@ class PosePipePanel(Panel):
         split.label(text="to Exit", icon='EVENT_ESC')
         column.operator(RunFileSelector.bl_idname, text="Load Video File", icon='FILE_MOVIE')
 
-        #row = layout.row()
 
         box = layout.box()
         column_flow = box.column_flow()
@@ -834,8 +1268,6 @@ class PosePipePanel(Panel):
         column.prop(settings, 'model_complexity', text='Model Complexity:')
         column.prop(settings, 'detection_confidence', text='Detect Confidence:')
         column.prop(settings, 'tracking_confidence', text='Track Confidence:')
-
-        #row = layout.row()        
         
         box = layout.box()
         column_flow = box.column_flow()
@@ -843,13 +1275,12 @@ class PosePipePanel(Panel):
         column.label(text="Edit Capture Data:", icon='MODIFIER_ON')
         column.operator(RetimeAnimation.bl_idname, text="Retime Animation", icon='MOD_TIME')
 
-        #row = layout.row()
 
         box = layout.box()
         column_flow = box.column_flow()
         column = column_flow.column(align=True)
-        column.label(text="Generate Armature:", icon='BONE_DATA')
-        column.operator(SkeletonBuilder.bl_idname, text="Body Bones", icon='ARMATURE_DATA')
+        column.label(text="Armature:", icon='BONE_DATA')
+        column.operator(SkeletonBuilder.bl_idname, text="Generate Bones", icon='ARMATURE_DATA')
         
         
         
