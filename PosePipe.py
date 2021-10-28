@@ -1222,9 +1222,9 @@ class SkeletonBuilder(bpy.types.Operator):
         for tracker in hide_trackers:
             bpy.data.objects[tracker].hide_set(True)
 
-        face_trackers = ['00 nose', '01 left eye (inner)', '02 left eye', '03 left eye (outer)',
+        face_trackers = ['01 left eye (inner)', '02 left eye', '03 left eye (outer)',
                         '04 right eye (inner)', '05 right eye', '06 right eye (outer)',
-                        '07 left ear', '08 right ear', '09 mouth (left)', '10 mouth (right)']
+                        '09 mouth (left)', '10 mouth (right)']
 
         if settings.face_tracking:
             for tracker in face_trackers:
