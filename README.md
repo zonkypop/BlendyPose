@@ -19,3 +19,5 @@ forked from [BlendyPose by Zonkosoft](https://github.com/zonkosoft/BlendyPose)
 BlendyPose is made using [MediaPipe](https://github.com/google/mediapipe), [OpenCV](https://github.com/opencv/opencv-python)
 
 [Nicholas Renotte](https://www.youtube.com/c/NicholasRenotte) provided some Mediapipe knowledge.
+
+weixin_44834086 demonstrated how to downgrade protobuf, which makes mediapipe compatible with Blender 3 and up!
