@@ -67,6 +67,9 @@ def install():
     import subprocess
     import sys
 
+    string = bpy.app.version_string
+    blenderversion = string.rstrip(string[-2:])
+    
     subprocess.check_call([
         sys.executable, 
         "-m", "ensurepip"])
@@ -78,15 +81,21 @@ def install():
     subprocess.check_call([
         sys.executable, 
         "-m", "pip", "install",
-        "--target=C:\\Program Files\\Blender Foundation\\Blender 2.93\\2.93\\python\\lib", 
+        f"--target=C:\\Program Files\\Blender Foundation\\Blender {blenderversion}\\{blenderversion}\\python\\lib",
         "opencv-python"])
 
     subprocess.check_call([
         sys.executable, 
         "-m", "pip", "install",
-        "--target=C:\\Program Files\\Blender Foundation\\Blender 2.93\\2.93\\python\\lib", 
+        f"--target=C:\\Program Files\\Blender Foundation\\Blender {blenderversion}\\{blenderversion}\\python\\lib", 
         "mediapipe"])
 
+    subprocess.check_call([
+        sys.executable, 
+        "-m", "pip", "install",
+        f"--target=C:\\Program Files\\Blender Foundation\\Blender {blenderversion}\\{blenderversion}\\python\\lib", 
+        "protobuf==3.19.0", 
+        "--upgrade"])
 
 def body_setup():
     """ Setup tracking boxes for body tracking """
