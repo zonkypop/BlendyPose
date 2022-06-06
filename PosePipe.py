@@ -1,7 +1,7 @@
 bl_info = {
     "name": "PosePipe",
     "author": "ZonkoSoft, SpectralVectors",
-    "version": (0, 8),
+    "version": (0, 8, 2),
     "blender": (2, 80, 0),
     "location": "3D View > Sidebar > PosePipe",
     "description": "Motion capture using your camera!",
@@ -397,7 +397,7 @@ def run_full(file_path):
             image = cv2.flip(image, 1)
             
             currentTime = time.time()
-            capture_fps = 1 / (currentTime - previousTime)
+            capture_fps = int(1 / (currentTime - previousTime))
             previousTime = currentTime
             cv2.putText(img=image, 
                         text='FPS: ' + str(int(capture_fps)), 
