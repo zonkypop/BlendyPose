@@ -1,7 +1,7 @@
-# PosePipe
+# BlendyPose
+BlendyPose is currently unmaintained, please check out the fork: https://github.com/SpectralVectors/PosePipe
+
 Blender Motion Capture using your camera!
-![Screenshot](/screenshots/PosePipeScreenshot.png)
-![GIF](/screenshots/PosePipeDemo4.gif)
 
 ## Note
 This will install to Blender's Python path, rather than your system's.
@@ -14,7 +14,7 @@ This will install to Blender's Python path, rather than your system's.
 3 - Open the BlendyPose panel and click Start Camera! The first time will take around a minute to install the libraries
 
 ## Credits
-forked from [BlendyPose by Zonkosoft](https://github.com/zonkosoft/BlendyPose)
+This is repo is using the fork from Spectral Vectors: https://github.com/SpectralVectors/PosePipe
 
 BlendyPose is made using [MediaPipe](https://github.com/google/mediapipe), [OpenCV](https://github.com/opencv/opencv-python)
 
