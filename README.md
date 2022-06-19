@@ -1,9 +1,23 @@
-# BlendyPose
+# PosePipe
 Blender Motion Capture using your camera!
+![Screenshot](/screenshots/PosePipeScreenshot.png)
+![GIF](/screenshots/PosePipeDemo4.gif)
 
-To use Blendy Pose: <br>
-(1) Run Blender (as adminstrator for Windows) <br>
-(2) Go to Edit, Preferences, Add Ons, Install Add on, Select blendy_pose.py and enable <br>
-(3) Run Blendy Pose! The first time will take around a minute to install the library <br>
+## Note
+This will install to Blender's Python path, rather than your system's.
 
-BlendyPose is made using MediaPipe: https://github.com/google/mediapipe
+## Install
+1 - Open Blender
+
+2 - Go to Edit > Preferences > Add Ons > Install Add on, then select blendy_pose.py and click enable
+
+3 - Open the BlendyPose panel and click Start Camera! The first time will take around a minute to install the libraries
+
+## Credits
+forked from [BlendyPose by Zonkosoft](https://github.com/zonkosoft/BlendyPose)
+
+BlendyPose is made using [MediaPipe](https://github.com/google/mediapipe), [OpenCV](https://github.com/opencv/opencv-python)
+
+[Nicholas Renotte](https://www.youtube.com/c/NicholasRenotte) provided some Mediapipe knowledge.
+
+weixin_44834086 demonstrated how to downgrade protobuf, which makes mediapipe compatible with Blender 3 and up!
